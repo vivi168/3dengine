@@ -7,6 +7,7 @@
 #include <chrono>
 
 #include "InputManager.h"
+#include "Shader.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -61,10 +62,34 @@ private:
             SDL_Quit();
             exit(EXIT_FAILURE);
         }
+
+        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
     }
 
     void mainloop()
     {
+        Shader shader("VertexShader.glsl", "FragmentShader.glsl");
+
+        std::vector<float> vertices = {
+            -0.5f, -0.5f, 0.0f, // left  
+             0.5f, -0.5f, 0.0f, // right 
+             0.0f,  0.5f, 0.0f  // top 
+        };
+
+        unsigned int VAO, VBO;
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
         auto tp1 = std::chrono::system_clock::now();
         auto tp2 = std::chrono::system_clock::now();
 
@@ -78,8 +103,11 @@ private:
 
             // Update here
 
-            render();
+            render(&shader, VAO);
         }
+
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
     }
 
     void poll_events()
@@ -91,10 +119,14 @@ private:
         }
     }
 
-    void render()
+    void render(Shader *shader, unsigned int VAO)
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        shader->use();
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         SDL_GL_SwapWindow(window);
     }
