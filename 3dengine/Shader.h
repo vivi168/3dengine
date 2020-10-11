@@ -10,7 +10,7 @@
 class Shader
 {
 private:
-    unsigned int program;
+    GLuint program = 0;
 
     void check_compile_errors(unsigned int shader, std::string type)
     {
@@ -28,7 +28,7 @@ private:
         }
     }
 public:
-    Shader(const std::string vertex_path, const std::string fragment_path)
+    void load(const std::string vertex_path, const std::string fragment_path)
     {
         // read shaders files
         std::string vertex_content, fragment_content;
@@ -83,7 +83,11 @@ public:
 
     void use()
     {
-
         glUseProgram(program);
+    }
+
+    void unlink()
+    {
+        glDeleteProgram(program);
     }
 };

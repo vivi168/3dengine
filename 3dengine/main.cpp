@@ -27,6 +27,8 @@ public:
 private:
     SDL_Window* window;
     SDL_GLContext context;
+    Shader shader;
+    GLuint vertex_array_obj, vertex_buffer_obj;
 
     bool quit = false;
 
@@ -68,24 +70,33 @@ private:
 
     void mainloop()
     {
-        Shader shader("VertexShader.glsl", "FragmentShader.glsl");
+        shader.load("VertexShader.glsl", "FragmentShader.glsl");
 
-        std::vector<float> vertices = {
+        std::vector<GLfloat> vertices = {
             -0.5f, -0.5f, 0.0f, // left  
              0.5f, -0.5f, 0.0f, // right 
              0.0f,  0.5f, 0.0f  // top 
         };
+        
+        // create one vertex array object
+        glGenVertexArrays(1, &vertex_array_obj);
+        glBindVertexArray(vertex_array_obj);
 
-        unsigned int VAO, VBO;
-        glGenVertexArrays(1, &VAO);
-        glGenBuffers(1, &VBO);
-
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (GLvoid*)0);
+        // create one vertex buffer object
+        glGenBuffers(1, &vertex_buffer_obj);
+        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
+        // creates and initializes a buffer object's data store
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
+        
+        // define an array of generic vertex attribute data
+        // layout location = 0
+        // 3 float components
+        // 3 float between each elements
+        // first element at index 0
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(0);
+
+        shader.use();
 
         auto tp1 = std::chrono::system_clock::now();
         auto tp2 = std::chrono::system_clock::now();
@@ -97,14 +108,13 @@ private:
             float fElapsedTime = elapsedTime.count() * 100;
 
             poll_events();
-
             // Update here
-
-            render(&shader, VAO);
+            render();
         }
 
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
+        glDeleteVertexArrays(1, &vertex_array_obj);
+        glDeleteBuffers(1, &vertex_buffer_obj);
+        shader.unlink();
     }
 
     void poll_events()
@@ -116,13 +126,11 @@ private:
         }
     }
 
-    void render(Shader *shader, unsigned int VAO)
+    void render()
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        shader->use();
-        glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         SDL_GL_SwapWindow(window);
