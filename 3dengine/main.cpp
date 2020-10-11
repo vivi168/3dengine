@@ -70,7 +70,7 @@ private:
 
     void mainloop()
     {
-        shader.load("VertexShader.glsl", "FragmentShader.glsl");
+        shader.load("shader.vert", "shader.frag");
 
         std::vector<GLfloat> vertices = {
             -0.5f, -0.5f, 0.0f, // left  
