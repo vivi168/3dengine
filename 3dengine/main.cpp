@@ -1,6 +1,9 @@
 #include <GL/gl3w.h>
 #include <SDL.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -31,7 +34,7 @@ private:
     SDL_Window* window;
     SDL_GLContext context;
     Shader shader;
-    GLuint vertex_array_obj, vertex_buffer_obj;
+    GLuint vertex_array_obj, vertex_buffer_obj, texture_id;
 
     bool quit = false;
 
@@ -112,10 +115,10 @@ private:
         shader.load("shader.vert", "shader.frag");
 
         std::vector<GLfloat> vertices = {
-            // positions         // colors
-            -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // left  
-             0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,// right 
-             0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,// top 
+            // positions         // colors          // texutre coordinates
+            -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, // left  
+             0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // right 
+             0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.5f, 1.0f, // top 
         };
 
         // create one vertex array object
@@ -133,11 +136,34 @@ private:
         // 3 float components
         // 3 float between each elements
         // first element at index 0
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+        // positions
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        // colors
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
         glEnableVertexAttribArray(1);
+
+        // texture coordinates        
+        glGenTextures(1, &texture_id);
+        glBindTexture(GL_TEXTURE_2D, texture_id);
+
+        int width, height, channels, mode;
+        unsigned char* img_data = stbi_load("texture.png", &width, &height, &channels, 0);
+        mode = channels == 4 ? GL_RGBA : GL_RGB;
+
+        if (img_data) {
+            glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+        else {
+            std::cerr << "Error while loading image\n";
+        }
+
+        stbi_image_free(img_data);
+
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
 
         shader.use();
     }
@@ -146,6 +172,7 @@ private:
     {
         glDeleteVertexArrays(1, &vertex_array_obj);
         glDeleteBuffers(1, &vertex_buffer_obj);
+        glDeleteTextures(1, &texture_id);
         shader.unlink();
     }
 
