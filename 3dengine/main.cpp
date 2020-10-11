@@ -112,9 +112,10 @@ private:
         shader.load("shader.vert", "shader.frag");
 
         std::vector<GLfloat> vertices = {
-            -0.5f, -0.5f, 0.0f, // left  
-             0.5f, -0.5f, 0.0f, // right 
-             0.0f,  0.5f, 0.0f  // top 
+            // positions         // colors
+            -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f, // left  
+             0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,// right 
+             0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,// top 
         };
 
         // create one vertex array object
@@ -132,8 +133,11 @@ private:
         // 3 float components
         // 3 float between each elements
         // first element at index 0
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(1);
 
         shader.use();
     }
