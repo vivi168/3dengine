@@ -20,7 +20,10 @@ public:
         init();
         create_window("3D Engine", WINDOW_WIDTH, WINDOW_HEIGHT);
 
+        gl_init();
         mainloop();
+
+        gl_cleanup();
         cleanup();
     }
 
@@ -70,34 +73,6 @@ private:
 
     void mainloop()
     {
-        shader.load("shader.vert", "shader.frag");
-
-        std::vector<GLfloat> vertices = {
-            -0.5f, -0.5f, 0.0f, // left  
-             0.5f, -0.5f, 0.0f, // right 
-             0.0f,  0.5f, 0.0f  // top 
-        };
-        
-        // create one vertex array object
-        glGenVertexArrays(1, &vertex_array_obj);
-        glBindVertexArray(vertex_array_obj);
-
-        // create one vertex buffer object
-        glGenBuffers(1, &vertex_buffer_obj);
-        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
-        // creates and initializes a buffer object's data store
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-        
-        // define an array of generic vertex attribute data
-        // layout location = 0
-        // 3 float components
-        // 3 float between each elements
-        // first element at index 0
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-        glEnableVertexAttribArray(0);
-
-        shader.use();
-
         auto tp1 = std::chrono::system_clock::now();
         auto tp2 = std::chrono::system_clock::now();
 
@@ -111,10 +86,6 @@ private:
             // Update here
             render();
         }
-
-        glDeleteVertexArrays(1, &vertex_array_obj);
-        glDeleteBuffers(1, &vertex_buffer_obj);
-        shader.unlink();
     }
 
     void poll_events()
@@ -134,6 +105,44 @@ private:
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         SDL_GL_SwapWindow(window);
+    }
+
+    void gl_init()
+    {
+        shader.load("shader.vert", "shader.frag");
+
+        std::vector<GLfloat> vertices = {
+            -0.5f, -0.5f, 0.0f, // left  
+             0.5f, -0.5f, 0.0f, // right 
+             0.0f,  0.5f, 0.0f  // top 
+        };
+
+        // create one vertex array object
+        glGenVertexArrays(1, &vertex_array_obj);
+        glBindVertexArray(vertex_array_obj);
+
+        // create one vertex buffer object
+        glGenBuffers(1, &vertex_buffer_obj);
+        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
+        // creates and initializes a buffer object's data store
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
+
+        // define an array of generic vertex attribute data
+        // layout location = 0
+        // 3 float components
+        // 3 float between each elements
+        // first element at index 0
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+        glEnableVertexAttribArray(0);
+
+        shader.use();
+    }
+
+    void gl_cleanup()
+    {
+        glDeleteVertexArrays(1, &vertex_array_obj);
+        glDeleteBuffers(1, &vertex_buffer_obj);
+        shader.unlink();
     }
 
     void cleanup()
