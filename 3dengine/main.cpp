@@ -34,7 +34,7 @@ private:
     SDL_Window* window;
     SDL_GLContext context;
     Shader shader;
-    GLuint vertex_array_obj, vertex_buffer_obj, texture_id;
+    GLuint vertex_array_obj, vertex_buffer_obj, texture_id, EBO;
 
     bool quit = false;
 
@@ -105,7 +105,7 @@ private:
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         SDL_GL_SwapWindow(window);
     }
@@ -116,20 +116,31 @@ private:
 
         std::vector<GLfloat> vertices = {
             // positions         // texutre coordinates
-            -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, // left
-             0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // right
-             0.0f,  0.5f, 0.0f,  0.5f, 1.0f, // top
+            -0.5f,  0.5f, 0.0f,  0.0f, 1.0f, // top left
+             0.5f,  0.5f, 0.0f,  1.0f, 1.0f, // top right
+            -0.5f, -0.5f, 0.0f,  0.0f, 0.0f, // bottom left
+             0.5f, -0.5f, 0.0f,  1.0f, 0.0f, // bottom right
         };
 
-        // create one vertex array object
+        std::vector<GLuint> indices = {
+            0, 1, 3,  // top triangle
+            0, 2, 3,  // bottom triangle
+        };
+        
         glGenVertexArrays(1, &vertex_array_obj);
+        glGenBuffers(1, &vertex_buffer_obj);
+        glGenBuffers(1, &EBO);
+        glGenTextures(1, &texture_id);
+
         glBindVertexArray(vertex_array_obj);
 
-        // create one vertex buffer object
-        glGenBuffers(1, &vertex_buffer_obj);
         glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
-        // creates and initializes a buffer object's data store
         glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+
+        glBindTexture(GL_TEXTURE_2D, texture_id);
 
         // define an array of generic vertex attribute data
         // layout location = 0
@@ -140,10 +151,17 @@ private:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(0);
 
-        // texture coordinates
-        glGenTextures(1, &texture_id);
-        glBindTexture(GL_TEXTURE_2D, texture_id);
+        load_texture();
 
+        // layout location = 1
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(1);
+
+        shader.use();
+    }
+
+    void load_texture()
+    {
         int width, height, channels, mode;
         unsigned char* img_data = stbi_load("texture.png", &width, &height, &channels, 0);
         mode = channels == 4 ? GL_RGBA : GL_RGB;
@@ -157,11 +175,6 @@ private:
         }
 
         stbi_image_free(img_data);
-
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-        glEnableVertexAttribArray(1);
-
-        shader.use();
     }
 
     void gl_cleanup()
