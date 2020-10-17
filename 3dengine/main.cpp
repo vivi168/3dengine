@@ -4,6 +4,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,6 +15,7 @@
 
 #include "InputManager.h"
 #include "Shader.h"
+#include "Mesh.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -126,11 +131,10 @@ private:
             0, 1, 3,  // top triangle
             0, 2, 3,  // bottom triangle
         };
-        
+
         glGenVertexArrays(1, &vertex_array_obj);
         glGenBuffers(1, &vertex_buffer_obj);
         glGenBuffers(1, &EBO);
-        glGenTextures(1, &texture_id);
 
         glBindVertexArray(vertex_array_obj);
 
@@ -149,6 +153,7 @@ private:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(0);
 
+        // texture
         // layout location = 1
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
         glEnableVertexAttribArray(2);
@@ -163,6 +168,8 @@ private:
         int width, height, channels, mode;
         unsigned char* img_data = stbi_load("texture.png", &width, &height, &channels, 0);
         mode = channels == 4 ? GL_RGBA : GL_RGB;
+
+        glGenTextures(1, &texture_id);
 
         if (img_data) {
             glBindTexture(GL_TEXTURE_2D, texture_id);
