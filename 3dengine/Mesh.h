@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <string>
 
 #include "Shader.h"
 
@@ -34,6 +35,9 @@ private:
     std::vector<Texture> textures;
 
 public:
-    Mesh(std::vector<Vertex>, std::vector<GLuint>, std::vector<Texture>);
+    void init(std::vector<Vertex>, std::vector<GLuint>, std::vector<Texture>);
     void draw(const Shader&);
+    void cleanup();
 };
+
+Texture load_texture(const std::string);

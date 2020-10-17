@@ -90,4 +90,9 @@ public:
     {
         glDeleteProgram(program);
     }
+
+    GLuint id() const
+    {
+        return program;
+    }
 };
