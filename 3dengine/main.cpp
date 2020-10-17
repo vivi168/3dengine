@@ -140,8 +140,6 @@ private:
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
-        glBindTexture(GL_TEXTURE_2D, texture_id);
-
         // define an array of generic vertex attribute data
         // layout location = 0
         // 3 float components
@@ -151,11 +149,11 @@ private:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
         glEnableVertexAttribArray(0);
 
-        load_texture();
-
         // layout location = 1
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(2);
+
+        load_texture();
 
         shader.use();
     }
@@ -167,6 +165,7 @@ private:
         mode = channels == 4 ? GL_RGBA : GL_RGB;
 
         if (img_data) {
+            glBindTexture(GL_TEXTURE_2D, texture_id);
             glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data);
             glGenerateMipmap(GL_TEXTURE_2D);
         }
