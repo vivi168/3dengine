@@ -81,15 +81,26 @@ private:
         auto tp1 = std::chrono::system_clock::now();
         auto tp2 = std::chrono::system_clock::now();
 
+        const Uint32 FPS = 60;
+        const Uint32 ticks_per_frame = 1000 / FPS;
+        Uint32 frame_start, frame_time;
+
         while (!quit) {
             tp2 = std::chrono::system_clock::now();
             std::chrono::duration<float> elapsedTime = tp2 - tp1;
             tp1 = tp2;
             float fElapsedTime = elapsedTime.count() * 100;
 
+            frame_start = SDL_GetTicks();
+
             poll_events();
             // Update here
             render();
+
+            frame_time = SDL_GetTicks() - frame_start;
+            if (ticks_per_frame > frame_time) {
+                SDL_Delay(ticks_per_frame - frame_time);
+            }
         }
     }
 
@@ -105,7 +116,16 @@ private:
     void render()
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+        // create transformations
+        glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        transform = glm::rotate(transform, (float)SDL_GetTicks() /1000, glm::vec3(0.0f, 0.0f, 1.0f));
+
+        GLuint transformLoc = glGetUniformLocation(shader.id(), "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
         shader.use();
 
@@ -116,28 +136,10 @@ private:
 
     void gl_init()
     {
+        glEnable(GL_DEPTH_TEST);
         shader.load("shader.vert", "shader.frag");
 
-        std::vector<Vertex> vertices = {
-                // positions                 // texutre coordinates
-            { { -0.5f,  0.5f, 0.0f }, { }, { 0.0f, 1.0f } },
-            { {  0.5f,  0.5f, 0.0f }, { }, { 1.0f, 1.0f } },
-            { { -0.5f, -0.5f, 0.0f }, { }, { 0.0f, 0.0f } },
-            { {  0.5f, -0.5f, 0.0f }, { }, { 1.0f, 0.0f } },
-        };
-
-        std::vector<GLuint> indices = {
-            0, 1, 3,  // top triangle
-            0, 2, 3,  // bottom triangle
-        };
-
-        Texture t = load_texture("texture.png");
-
-        std::vector<Texture> textures = {
-            t
-        };
-
-        mesh.init(vertices, indices, textures);
+        mesh.init("backpack.obj");
     }
 
     void gl_cleanup()

@@ -8,8 +8,10 @@ out VertexData {
     vec2 texture_uv;
 } o;
 
+uniform mat4 transform;
+
 void main()
 {
-    gl_Position = vec4(in_position, 1.0);
+    gl_Position = transform * vec4(in_position, 1.0);
     o.texture_uv = in_texture_uv;
 }

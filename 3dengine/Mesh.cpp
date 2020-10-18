@@ -6,11 +6,34 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-void Mesh::init(std::vector<Vertex> v, std::vector<GLuint> i, std::vector<Texture> t)
+#include <algorithm>
+
+Texture load_texture(const std::string);
+
+void Mesh::init(const std::string filename)
 {
-    vertices = v;
-    indices = i;
-    textures = t;
+    bool loaded = load_model(filename);
+
+     if (!loaded) return;
+
+    //vertices = {
+    //    // positions                 // texutre coordinates
+    //{ { -0.5f,  0.5f, 0.0f }, { }, { 0.0f, 1.0f } },
+    //{ {  0.5f,  0.5f, 0.0f }, { }, { 1.0f, 1.0f } },
+    //{ { -0.5f, -0.5f, 0.0f }, { }, { 0.0f, 0.0f } },
+    //{ {  0.5f, -0.5f, 0.0f }, { }, { 1.0f, 0.0f } },
+    //};
+
+    //indices = {
+    //    0, 1, 3,  // top triangle
+    //    0, 2, 3,  // bottom triangle
+    //};
+
+    //Texture t = load_texture("texture.png");
+
+    //textures = {
+    //    t
+    //};
 
     glGenVertexArrays(1, &vertex_array_obj);
     glGenBuffers(1, &vertex_buffer_obj);
@@ -69,6 +92,7 @@ void Mesh::cleanup()
 
 Texture load_texture(const std::string path)
 {
+    // todo load texture once
     GLuint texture_id;
     Texture texture;
     int width, height, channels, mode;
@@ -92,4 +116,60 @@ Texture load_texture(const std::string path)
     texture.path = path;
 
     return texture;
+}
+
+bool Mesh::load_model(const std::string filename)
+{
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    std::string basepath = ".";
+
+    bool loaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), basepath.c_str(), true);
+
+    if (!warn.empty()) {
+        std::cout << "WARN: " << warn << std::endl;
+    }
+
+    if (!err.empty()) {
+        std::cerr << "ERR: " << err << std::endl;
+    }
+
+    if (!loaded) {
+        std::cerr << "Failed to load / parse.obj" << std::endl;
+        return false;
+    }
+
+
+
+    for (const auto& shape : shapes) {
+        for (const auto& index : shape.mesh.indices) {
+            Vertex vertex;
+
+            vertex.position = {
+                attrib.vertices[3 * index.vertex_index + 0],
+                attrib.vertices[3 * index.vertex_index + 1],
+                attrib.vertices[3 * index.vertex_index + 2]
+            };
+
+            vertex.texture_uv = {
+                attrib.texcoords[2 * index.texcoord_index + 0],
+                attrib.texcoords[2 * index.texcoord_index + 1]
+            };
+
+            /*if (std::find(vertices.begin(), vertices.end(), vertex) == vertices.end()) {
+                vertices.push_back(vertex);
+            }*/
+
+            vertices.push_back(vertex);
+            indices.push_back(indices.size());
+        }
+    }
+
+    Texture t = load_texture(materials[0].diffuse_texname);
+    textures.push_back(t);
+
+    return true;
 }

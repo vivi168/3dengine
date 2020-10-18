@@ -12,6 +12,10 @@ struct Vertex {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texture_uv;
+
+    bool operator==(const Vertex& other) const {
+        return position == other.position && texture_uv == other.texture_uv;
+    }
 };
 
 struct Texture {
@@ -34,10 +38,11 @@ private:
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
 
+    bool load_model(const std::string);
+    
 public:
-    void init(std::vector<Vertex>, std::vector<GLuint>, std::vector<Texture>);
+    // void init(std::vector<Vertex>, std::vector<GLuint>, std::vector<Texture>);
+    void init(const std::string);
     void draw(const Shader&);
     void cleanup();
 };
-
-Texture load_texture(const std::string);
