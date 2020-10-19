@@ -81,7 +81,7 @@ private:
         auto tp1 = std::chrono::system_clock::now();
         auto tp2 = std::chrono::system_clock::now();
 
-        const Uint32 FPS = 60;
+        const Uint32 FPS = 144;
         const Uint32 ticks_per_frame = 1000 / FPS;
         Uint32 frame_start, frame_time;
 
@@ -118,11 +118,10 @@ private:
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-        // create transformations
-        glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-        transform = glm::rotate(transform, (float)SDL_GetTicks() /1000, glm::vec3(0.0f, 0.0f, 1.0f));
+        glm::mat4 transform = glm::mat4(1.0f);
+        // transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, -0.7f));
+        transform = glm::rotate(transform, (float)SDL_GetTicks() /1000, glm::vec3(0.3f, 1.0f, 0.0f));
+        transform = glm::scale(transform, glm::vec3(0.2f, 0.2f, 0.2f));
 
         GLuint transformLoc = glGetUniformLocation(shader.id(), "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
@@ -137,6 +136,8 @@ private:
     void gl_init()
     {
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
         shader.load("shader.vert", "shader.frag");
 
         mesh.init("backpack.obj");

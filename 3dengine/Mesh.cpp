@@ -6,9 +6,34 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/hash.hpp>
+
 #include <algorithm>
+#include <unordered_map>
 
 Texture load_texture(const std::string);
+
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+    const int GOLDEN_RATIO = 0x9e3779b9;
+    std::hash<T> h;
+    seed ^= h(v) + GOLDEN_RATIO + (seed << 6) + (seed >> 2);
+}
+
+namespace std {
+    template<> struct hash<Vertex> {
+        std::size_t operator()(Vertex const& vertex) const {
+            std::size_t res = 0;
+            hash_combine(res, vertex.position);
+            hash_combine(res, vertex.normal);
+            hash_combine(res, vertex.texture_uv);
+
+            return res;
+        }
+    };
+}
 
 void Mesh::init(const std::string filename)
 {
@@ -142,7 +167,7 @@ bool Mesh::load_model(const std::string filename)
         return false;
     }
 
-
+    std::unordered_map<Vertex, uint32_t> unique_vertices{};
 
     for (const auto& shape : shapes) {
         for (const auto& index : shape.mesh.indices) {
@@ -154,19 +179,27 @@ bool Mesh::load_model(const std::string filename)
                 attrib.vertices[3 * index.vertex_index + 2]
             };
 
+            vertex.normal = {
+                attrib.normals[3 * index.normal_index + 0],
+                attrib.normals[3 * index.normal_index + 1],
+                attrib.normals[3 * index.normal_index + 2]
+            };
+
             vertex.texture_uv = {
                 attrib.texcoords[2 * index.texcoord_index + 0],
                 attrib.texcoords[2 * index.texcoord_index + 1]
             };
 
-            /*if (std::find(vertices.begin(), vertices.end(), vertex) == vertices.end()) {
+            if (unique_vertices.count(vertex) == 0) {
+                unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
                 vertices.push_back(vertex);
-            }*/
+            }
 
-            vertices.push_back(vertex);
-            indices.push_back(indices.size());
+            indices.push_back(unique_vertices[vertex]);
         }
     }
+
+    std::cout << vertices.size() << std::endl;
 
     Texture t = load_texture(materials[0].diffuse_texname);
     textures.push_back(t);

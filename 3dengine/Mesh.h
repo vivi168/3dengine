@@ -14,7 +14,7 @@ struct Vertex {
     glm::vec2 texture_uv;
 
     bool operator==(const Vertex& other) const {
-        return position == other.position && texture_uv == other.texture_uv;
+        return position == other.position && normal == other.normal && texture_uv == other.texture_uv;
     }
 };
 
@@ -39,7 +39,7 @@ private:
     std::vector<Texture> textures;
 
     bool load_model(const std::string);
-    
+
 public:
     // void init(std::vector<Vertex>, std::vector<GLuint>, std::vector<Texture>);
     void init(const std::string);
