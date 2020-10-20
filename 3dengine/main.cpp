@@ -13,6 +13,7 @@
 #include "InputManager.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "Camera.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -37,6 +38,8 @@ private:
     SDL_GLContext context;
     Shader shader;
     Mesh mesh;
+    Camera camera;
+    float delta_time;
 
     bool quit = false;
 
@@ -80,6 +83,7 @@ private:
     {
         auto tp1 = std::chrono::system_clock::now();
         auto tp2 = std::chrono::system_clock::now();
+        delta_time = 0.0f;
 
         const Uint32 FPS = 144;
         const Uint32 ticks_per_frame = 1000 / FPS;
@@ -87,14 +91,14 @@ private:
 
         while (!quit) {
             tp2 = std::chrono::system_clock::now();
-            std::chrono::duration<float> elapsedTime = tp2 - tp1;
+            std::chrono::duration<float> elapsed_time = tp2 - tp1;
             tp1 = tp2;
-            float fElapsedTime = elapsedTime.count() * 100;
+            delta_time = elapsed_time.count() * 100;
 
             frame_start = SDL_GetTicks();
 
             poll_events();
-            // Update here
+            process_input();
             render();
 
             frame_time = SDL_GetTicks() - frame_start;
@@ -113,20 +117,48 @@ private:
         }
     }
 
+    void process_input()
+    {
+        if (InputManager::getInstance().isHeld(SDLK_w)) {
+            camera.process_keyboard(CameraDirection::FORWARD, delta_time);
+        }
+
+        if (InputManager::getInstance().isHeld(SDLK_s)) {
+            camera.process_keyboard(CameraDirection::BACKWARD, delta_time);
+        }
+
+        if (InputManager::getInstance().isHeld(SDLK_a)) {
+            camera.process_keyboard(CameraDirection::LEFT, delta_time);
+        }
+
+        if (InputManager::getInstance().isHeld(SDLK_d)) {
+            camera.process_keyboard(CameraDirection::RIGHT, delta_time);
+        }
+    }
+
     void render()
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glm::mat4 transform = glm::mat4(1.0f);
-        // transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, -0.7f));
-        transform = glm::rotate(transform, (float)SDL_GetTicks() /1000, glm::vec3(0.3f, 1.0f, 0.0f));
-        transform = glm::scale(transform, glm::vec3(0.2f, 0.2f, 0.2f));
-
-        GLuint transformLoc = glGetUniformLocation(shader.id(), "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         shader.use();
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+
+        glm::mat4 view = camera.look_at();
+        glm::mat4 projection = glm::perspective(glm::quarter_pi<float>(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+
+        GLuint model_loc = glGetUniformLocation(shader.id(), "model");
+        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
+        
+        GLuint view_loc = glGetUniformLocation(shader.id(), "view");
+        glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view));
+        
+        GLuint projection_loc = glGetUniformLocation(shader.id(), "projection");
+        glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
 
         mesh.draw(shader);
 
