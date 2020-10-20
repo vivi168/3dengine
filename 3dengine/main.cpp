@@ -93,7 +93,7 @@ private:
             tp2 = std::chrono::system_clock::now();
             std::chrono::duration<float> elapsed_time = tp2 - tp1;
             tp1 = tp2;
-            delta_time = elapsed_time.count() * 100;
+            delta_time = elapsed_time.count();
 
             frame_start = SDL_GetTicks();
 
@@ -146,7 +146,7 @@ private:
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 view = camera.look_at();
         glm::mat4 projection = glm::perspective(glm::quarter_pi<float>(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);

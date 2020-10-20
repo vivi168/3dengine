@@ -8,7 +8,7 @@ const float ZOOM = glm::quarter_pi<float>();
 
 Camera::Camera()
 {
-    position = glm::vec3(0.0f, 0.0f, 0.0f);
+    position = glm::vec3(0.0f, 0.0f, 3.0f);
     world_up = glm::vec3(0.0f, 1.0f, 0.0f);
 
     yaw = YAW;
@@ -39,7 +39,7 @@ glm::mat4 Camera::look_at()
 
 void Camera::process_keyboard(CameraDirection direction, float delta_time)
 {
-    float velocity = speed * delta_time / 1000.0f;
+    float velocity = speed * delta_time;
 
     switch (direction) {
     case CameraDirection::FORWARD:
