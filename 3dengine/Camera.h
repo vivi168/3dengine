@@ -12,7 +12,7 @@ enum class CameraDirection {
     UP,
     DOWN,
     LEFT,
-    RIGHT
+    RIGHT,
 };
 
 class Camera
@@ -23,12 +23,15 @@ private:
     glm::vec3 world_up;
 
     float yaw, pitch;
-    float speed, sensitivity, zoom;
+    float speed, sensitivity, m_zoom;
+    bool m_constrain_pitch;
 
     void update();
+    void constrain_pitch();
 public:
     Camera();
     glm::mat4 look_at();
     void process_keyboard(CameraDirection, float);
-    void process_mouse();
+    void process_mouse(float, float);
+    float zoom();
 };

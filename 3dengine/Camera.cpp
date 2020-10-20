@@ -3,7 +3,7 @@
 const float YAW = -glm::half_pi<float>();
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
+const float SENSITIVITY = 0.01f;
 const float ZOOM = glm::quarter_pi<float>();
 
 Camera::Camera()
@@ -15,6 +15,8 @@ Camera::Camera()
     pitch = PITCH;
     speed = SPEED;
     sensitivity = SENSITIVITY;
+    m_zoom = ZOOM;
+    m_constrain_pitch = true;
 
     update();
 }
@@ -57,23 +59,45 @@ void Camera::process_keyboard(CameraDirection direction, float delta_time)
         break;
 
     case CameraDirection::UP:
-        pitch += sensitivity * delta_time * 10.0f;
+        pitch += sensitivity;
         break;
     case CameraDirection::DOWN:
-        pitch -= sensitivity * delta_time * 10.0f;
+        pitch -= sensitivity;
         break;
     case CameraDirection::LEFT:
-        yaw -= sensitivity * delta_time * 10.0f;
+        yaw -= sensitivity;
         break;
     case CameraDirection::RIGHT:
-        yaw += sensitivity * delta_time * 10.0f;
+        yaw += sensitivity;
         break;
     }
 
+    constrain_pitch();
     update();
 }
 
-void Camera::process_mouse()
+void Camera::process_mouse(float x, float y)
 {
+    yaw += x * sensitivity;
+    pitch += y * sensitivity;
 
+    constrain_pitch();
+    update();
+}
+
+void Camera::constrain_pitch()
+{
+    if (!m_constrain_pitch)
+        return;
+
+    constexpr float pitch_limit = glm::half_pi<float>() - 0.01f;
+    if (pitch > pitch_limit)
+        pitch = pitch_limit;
+    if (pitch < -pitch_limit)
+        pitch = -pitch_limit;
+}
+
+float Camera::zoom()
+{
+    return m_zoom;
 }

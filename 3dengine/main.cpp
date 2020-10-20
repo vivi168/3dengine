@@ -77,6 +77,10 @@ private:
         }
 
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+        SDL_WarpMouseInWindow(window, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+        // SDL_SetRelativeMouseMode(SDL_TRUE);
+
     }
 
     void mainloop()
@@ -89,6 +93,12 @@ private:
         const Uint32 ticks_per_frame = 1000 / FPS;
         Uint32 frame_start, frame_time;
 
+        int mouse_x, mouse_y, prev_mouse_x, prev_mouse_y;
+        mouse_x = WINDOW_WIDTH / 2;
+        mouse_y = WINDOW_HEIGHT / 2;
+        prev_mouse_x = mouse_x;
+        prev_mouse_y = mouse_y;
+
         while (!quit) {
             tp2 = std::chrono::system_clock::now();
             std::chrono::duration<float> elapsed_time = tp2 - tp1;
@@ -99,6 +109,13 @@ private:
 
             poll_events();
             process_input();
+            SDL_GetMouseState(&mouse_x, &mouse_y);
+            int mouse_offset_x = prev_mouse_x - mouse_x;
+            int mouse_offset_y = prev_mouse_y - mouse_y;
+            prev_mouse_x = mouse_x;
+            prev_mouse_y = mouse_y;
+            camera.process_mouse((float)-mouse_offset_x, (float)mouse_offset_y);
+
             render();
 
             frame_time = SDL_GetTicks() - frame_start;
@@ -113,6 +130,10 @@ private:
         InputManager::getInstance().update();
 
         if (InputManager::getInstance().quitRequested()) {
+            quit = true;
+        }
+
+        if (InputManager::getInstance().isPressed(SDLK_ESCAPE)) {
             quit = true;
         }
     }
@@ -165,7 +186,7 @@ private:
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 view = camera.look_at();
-        glm::mat4 projection = glm::perspective(glm::quarter_pi<float>(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
 
         GLuint model_loc = glGetUniformLocation(shader.id(), "model");
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
