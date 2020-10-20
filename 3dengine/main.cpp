@@ -77,10 +77,7 @@ private:
         }
 
         glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-        SDL_WarpMouseInWindow(window, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
-        // SDL_SetRelativeMouseMode(SDL_TRUE);
-
+        SDL_SetRelativeMouseMode(SDL_TRUE);
     }
 
     void mainloop()
@@ -93,12 +90,6 @@ private:
         const Uint32 ticks_per_frame = 1000 / FPS;
         Uint32 frame_start, frame_time;
 
-        int mouse_x, mouse_y, prev_mouse_x, prev_mouse_y;
-        mouse_x = WINDOW_WIDTH / 2;
-        mouse_y = WINDOW_HEIGHT / 2;
-        prev_mouse_x = mouse_x;
-        prev_mouse_y = mouse_y;
-
         while (!quit) {
             tp2 = std::chrono::system_clock::now();
             std::chrono::duration<float> elapsed_time = tp2 - tp1;
@@ -109,12 +100,10 @@ private:
 
             poll_events();
             process_input();
-            SDL_GetMouseState(&mouse_x, &mouse_y);
-            int mouse_offset_x = prev_mouse_x - mouse_x;
-            int mouse_offset_y = prev_mouse_y - mouse_y;
-            prev_mouse_x = mouse_x;
-            prev_mouse_y = mouse_y;
-            camera.process_mouse((float)-mouse_offset_x, (float)mouse_offset_y);
+
+            int mouse_x, mouse_y;
+            SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+            camera.process_mouse((float)mouse_x, (float)mouse_y);
 
             render();
 

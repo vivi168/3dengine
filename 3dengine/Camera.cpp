@@ -78,8 +78,10 @@ void Camera::process_keyboard(CameraDirection direction, float delta_time)
 
 void Camera::process_mouse(float x, float y)
 {
+    int invert_mouse = -1;
+
     yaw += x * sensitivity;
-    pitch += y * sensitivity;
+    pitch += (y * sensitivity) * invert_mouse;
 
     constrain_pitch();
     update();
