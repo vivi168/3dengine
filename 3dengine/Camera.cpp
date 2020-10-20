@@ -14,6 +14,7 @@ Camera::Camera()
     yaw = YAW;
     pitch = PITCH;
     speed = SPEED;
+    sensitivity = SENSITIVITY;
 
     update();
 }
@@ -48,13 +49,28 @@ void Camera::process_keyboard(CameraDirection direction, float delta_time)
     case CameraDirection::BACKWARD:
         position -= front * velocity;
         break;
-    case CameraDirection::LEFT:
+    case CameraDirection::LEFTWARD:
         position -= right * velocity;
         break;
-    case CameraDirection::RIGHT:
+    case CameraDirection::RIGHTWARD:
         position += right * velocity;
         break;
+
+    case CameraDirection::UP:
+        pitch += sensitivity * delta_time * 10.0f;
+        break;
+    case CameraDirection::DOWN:
+        pitch -= sensitivity * delta_time * 10.0f;
+        break;
+    case CameraDirection::LEFT:
+        yaw -= sensitivity * delta_time * 10.0f;
+        break;
+    case CameraDirection::RIGHT:
+        yaw += sensitivity * delta_time * 10.0f;
+        break;
     }
+
+    update();
 }
 
 void Camera::process_mouse()

@@ -128,10 +128,26 @@ private:
         }
 
         if (InputManager::getInstance().isHeld(SDLK_a)) {
-            camera.process_keyboard(CameraDirection::LEFT, delta_time);
+            camera.process_keyboard(CameraDirection::LEFTWARD, delta_time);
         }
 
         if (InputManager::getInstance().isHeld(SDLK_d)) {
+            camera.process_keyboard(CameraDirection::RIGHTWARD, delta_time);
+        }
+
+        if (InputManager::getInstance().isHeld(SDLK_UP)) {
+            camera.process_keyboard(CameraDirection::UP, delta_time);
+        }
+
+        if (InputManager::getInstance().isHeld(SDLK_DOWN)) {
+            camera.process_keyboard(CameraDirection::DOWN, delta_time);
+        }
+
+        if (InputManager::getInstance().isHeld(SDLK_LEFT)) {
+            camera.process_keyboard(CameraDirection::LEFT, delta_time);
+        }
+
+        if (InputManager::getInstance().isHeld(SDLK_RIGHT)) {
             camera.process_keyboard(CameraDirection::RIGHT, delta_time);
         }
     }

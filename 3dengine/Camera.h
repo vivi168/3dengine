@@ -6,8 +6,13 @@
 enum class CameraDirection {
     FORWARD,
     BACKWARD,
+    LEFTWARD,
+    RIGHTWARD,
+
+    UP,
+    DOWN,
     LEFT,
-    RIGHT,
+    RIGHT
 };
 
 class Camera
