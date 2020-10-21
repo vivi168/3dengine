@@ -39,8 +39,9 @@ private:
     Shader shader;
     Mesh mesh;
     Camera camera;
-    float delta_time;
+    InputManager input_manager = InputManager::getInstance();
 
+    float delta_time;
     bool quit = false;
 
     void init()
@@ -113,50 +114,46 @@ private:
 
     void poll_events()
     {
-        InputManager::getInstance().update();
+        input_manager.update();
     }
 
     void process_input()
     {
-        camera.process_mouse(InputManager::getInstance().mouseX(), (float)InputManager::getInstance().mouseY());
+        camera.process_mouse(input_manager.mouseX(), input_manager.mouseY());
 
-        if (InputManager::getInstance().quitRequested()) {
+        if (input_manager.quitRequested() || input_manager.isPressed(SDLK_ESCAPE)) {
             quit = true;
         }
 
-        if (InputManager::getInstance().isPressed(SDLK_ESCAPE)) {
-            quit = true;
-        }
-
-        if (InputManager::getInstance().isHeld(SDLK_w)) {
+        if (input_manager.isHeld(SDLK_w)) {
             camera.process_keyboard(CameraDirection::FORWARD, delta_time);
         }
 
-        if (InputManager::getInstance().isHeld(SDLK_s)) {
+        if (input_manager.isHeld(SDLK_s)) {
             camera.process_keyboard(CameraDirection::BACKWARD, delta_time);
         }
 
-        if (InputManager::getInstance().isHeld(SDLK_a)) {
+        if (input_manager.isHeld(SDLK_a)) {
             camera.process_keyboard(CameraDirection::LEFTWARD, delta_time);
         }
 
-        if (InputManager::getInstance().isHeld(SDLK_d)) {
+        if (input_manager.isHeld(SDLK_d)) {
             camera.process_keyboard(CameraDirection::RIGHTWARD, delta_time);
         }
 
-        if (InputManager::getInstance().isHeld(SDLK_UP)) {
+        if (input_manager.isHeld(SDLK_UP)) {
             camera.process_keyboard(CameraDirection::UP, delta_time);
         }
 
-        if (InputManager::getInstance().isHeld(SDLK_DOWN)) {
+        if (input_manager.isHeld(SDLK_DOWN)) {
             camera.process_keyboard(CameraDirection::DOWN, delta_time);
         }
 
-        if (InputManager::getInstance().isHeld(SDLK_LEFT)) {
+        if (input_manager.isHeld(SDLK_LEFT)) {
             camera.process_keyboard(CameraDirection::LEFT, delta_time);
         }
 
-        if (InputManager::getInstance().isHeld(SDLK_RIGHT)) {
+        if (input_manager.isHeld(SDLK_RIGHT)) {
             camera.process_keyboard(CameraDirection::RIGHT, delta_time);
         }
     }
