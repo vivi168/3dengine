@@ -194,7 +194,7 @@ private:
 
         shader.load("shader", "shaders/");
 
-        mesh.init("models/backpack.obj", "models/");
+        mesh.init("assets/backpack.obj", "assets/");
     }
 
     void gl_cleanup()
