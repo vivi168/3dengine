@@ -28,7 +28,7 @@ private:
         }
     }
 public:
-    void load(const std::string vertex_path, const std::string fragment_path)
+    void load(const std::string filename, const std::string basedir)
     {
         // read shaders files
         std::string vertex_content, fragment_content;
@@ -38,8 +38,8 @@ public:
         fragment_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 
         try {
-            vertex_file.open(vertex_path);
-            fragment_file.open(fragment_path);
+            vertex_file.open(basedir + filename + ".vert");
+            fragment_file.open(basedir + filename + ".frag");
 
             std::stringstream vertex_stream, fragment_stream;
             vertex_stream << vertex_file.rdbuf();

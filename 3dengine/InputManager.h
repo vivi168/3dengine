@@ -10,7 +10,7 @@ struct keyState {
 class InputManager
 {
 public:
-    static InputManager& getInstance()
+    static InputManager& instance()
     {
         static InputManager instance;
 
@@ -30,10 +30,10 @@ public:
                 quit = true;
                 break;
             case SDL_KEYDOWN:
-                newKeyState[event.key.keysym.sym] = true;
+                new_keystate[event.key.keysym.sym] = true;
                 break;
             case SDL_KEYUP:
-                newKeyState[event.key.keysym.sym] = false;
+                new_keystate[event.key.keysym.sym] = false;
                 break;
             case SDL_MOUSEMOTION:
                 mouse_x_rel += event.motion.xrel;
@@ -48,8 +48,8 @@ public:
             k_state.pressed = false;
             k_state.released = false;
 
-            if (newKeyState[idx] != oldKeyState[idx]) {
-                if (newKeyState[idx] == true) {
+            if (new_keystate[idx] != old_keystate[idx]) {
+                if (new_keystate[idx] == true) {
                     k_state.pressed = !k_state.held;
                     k_state.held = true;
                 }
@@ -59,36 +59,36 @@ public:
                 }
             }
 
-            oldKeyState[idx] = newKeyState[idx];
+            old_keystate[idx] = new_keystate[idx];
         }
     }
 
-    bool quitRequested()
+    bool quit_requested()
     {
         return quit;
     }
 
-    bool isHeld(int k)
+    bool is_held(int k)
     {
         return k_states[k].held;
     }
 
-    bool isPressed(int k)
+    bool is_pressed(int k)
     {
         return k_states[k].pressed;
     }
 
-    bool isReleased(int k)
+    bool is_released(int k)
     {
         return k_states[k].released;
     }
 
-    float mouseX()
+    float mouse_x()
     {
         return (float)mouse_x_rel;
     }
 
-    float mouseY()
+    float mouse_y()
     {
         return (float)mouse_y_rel;
     }
@@ -98,9 +98,9 @@ private:
 
     bool quit = false;
     int mouse_state = 0;
-    int mouse_x = 0, mouse_y = 0, mouse_x_rel = 0, mouse_y_rel = 0;
+    int mouse_x_rel = 0, mouse_y_rel = 0;
 
-    std::map<SDL_Keycode, bool> newKeyState;
-    std::map<SDL_Keycode, bool> oldKeyState;
+    std::map<SDL_Keycode, bool> new_keystate;
+    std::map<SDL_Keycode, bool> old_keystate;
     std::map<SDL_Keycode, keyState> k_states;
 };

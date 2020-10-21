@@ -39,7 +39,7 @@ private:
     Shader shader;
     Mesh mesh;
     Camera camera;
-    InputManager input_manager = InputManager::getInstance();
+    InputManager input_manager = InputManager::instance();
 
     float delta_time;
     bool quit = false;
@@ -119,41 +119,41 @@ private:
 
     void process_input()
     {
-        camera.process_mouse(input_manager.mouseX(), input_manager.mouseY());
+        camera.process_mouse(input_manager.mouse_x(), input_manager.mouse_y());
 
-        if (input_manager.quitRequested() || input_manager.isPressed(SDLK_ESCAPE)) {
+        if (input_manager.quit_requested() || input_manager.is_pressed(SDLK_ESCAPE)) {
             quit = true;
         }
 
-        if (input_manager.isHeld(SDLK_w)) {
+        if (input_manager.is_held(SDLK_w)) {
             camera.process_keyboard(CameraDirection::FORWARD, delta_time);
         }
 
-        if (input_manager.isHeld(SDLK_s)) {
+        if (input_manager.is_held(SDLK_s)) {
             camera.process_keyboard(CameraDirection::BACKWARD, delta_time);
         }
 
-        if (input_manager.isHeld(SDLK_a)) {
+        if (input_manager.is_held(SDLK_a)) {
             camera.process_keyboard(CameraDirection::LEFTWARD, delta_time);
         }
 
-        if (input_manager.isHeld(SDLK_d)) {
+        if (input_manager.is_held(SDLK_d)) {
             camera.process_keyboard(CameraDirection::RIGHTWARD, delta_time);
         }
 
-        if (input_manager.isHeld(SDLK_UP)) {
+        if (input_manager.is_held(SDLK_UP)) {
             camera.process_keyboard(CameraDirection::UP, delta_time);
         }
 
-        if (input_manager.isHeld(SDLK_DOWN)) {
+        if (input_manager.is_held(SDLK_DOWN)) {
             camera.process_keyboard(CameraDirection::DOWN, delta_time);
         }
 
-        if (input_manager.isHeld(SDLK_LEFT)) {
+        if (input_manager.is_held(SDLK_LEFT)) {
             camera.process_keyboard(CameraDirection::LEFT, delta_time);
         }
 
-        if (input_manager.isHeld(SDLK_RIGHT)) {
+        if (input_manager.is_held(SDLK_RIGHT)) {
             camera.process_keyboard(CameraDirection::RIGHT, delta_time);
         }
     }
@@ -192,9 +192,9 @@ private:
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        shader.load("shader.vert", "shader.frag");
+        shader.load("shader", "shaders/");
 
-        mesh.init("backpack.obj");
+        mesh.init("models/backpack.obj", "models/");
     }
 
     void gl_cleanup()

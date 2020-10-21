@@ -35,30 +35,12 @@ namespace std {
     };
 }
 
-void Mesh::init(const std::string filename)
+void Mesh::init(const std::string filename, const std::string basedir)
 {
-    bool loaded = load_model(filename);
+    bool loaded = load_model(filename, basedir);
 
-     if (!loaded) return;
-
-    //vertices = {
-    //    // positions                 // texutre coordinates
-    //{ { -0.5f,  0.5f, 0.0f }, { }, { 0.0f, 1.0f } },
-    //{ {  0.5f,  0.5f, 0.0f }, { }, { 1.0f, 1.0f } },
-    //{ { -0.5f, -0.5f, 0.0f }, { }, { 0.0f, 0.0f } },
-    //{ {  0.5f, -0.5f, 0.0f }, { }, { 1.0f, 0.0f } },
-    //};
-
-    //indices = {
-    //    0, 1, 3,  // top triangle
-    //    0, 2, 3,  // bottom triangle
-    //};
-
-    //Texture t = load_texture("texture.png");
-
-    //textures = {
-    //    t
-    //};
+     if (!loaded)
+         return;
 
     glGenVertexArrays(1, &vertex_array_obj);
     glGenBuffers(1, &vertex_buffer_obj);
@@ -142,16 +124,14 @@ Texture load_texture(const std::string path)
     return texture;
 }
 
-bool Mesh::load_model(const std::string filename)
+bool Mesh::load_model(const std::string filename, const std::string basedir)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
     std::string warn, err;
 
-    std::string basepath = ".";
-
-    bool loaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), basepath.c_str(), true);
+    bool loaded = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), basedir.c_str(), true);
 
     if (!warn.empty()) {
         std::cout << "WARN: " << warn << std::endl;
@@ -200,7 +180,8 @@ bool Mesh::load_model(const std::string filename)
 
     std::cout << vertices.size() << std::endl;
 
-    Texture t = load_texture(materials[0].diffuse_texname);
+    // TODO: multiple textures ?
+    Texture t = load_texture(basedir + materials[0].diffuse_texname);
     textures.push_back(t);
 
     return true;
