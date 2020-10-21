@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+#include <iostream>
+
 const float YAW = -glm::half_pi<float>();
 const float PITCH = 0.0f;
 const float SPEED = 2.5f;
@@ -80,7 +82,8 @@ void Camera::process_mouse(float x, float y)
 {
     int invert_mouse = -1;
 
-    yaw += x * sensitivity;
+    yaw = glm::mod(yaw + x * sensitivity, glm::pi<float>() * 2);
+
     pitch += (y * sensitivity) * invert_mouse;
 
     constrain_pitch();
@@ -93,10 +96,7 @@ void Camera::constrain_pitch()
         return;
 
     constexpr float pitch_limit = glm::half_pi<float>() - 0.01f;
-    if (pitch > pitch_limit)
-        pitch = pitch_limit;
-    if (pitch < -pitch_limit)
-        pitch = -pitch_limit;
+    pitch = glm::clamp(pitch, -pitch_limit, pitch_limit);
 }
 
 float Camera::zoom()

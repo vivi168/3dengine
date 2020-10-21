@@ -21,6 +21,9 @@ public:
     {
         SDL_Event event;
 
+        mouse_x_rel = 0;
+        mouse_y_rel = 0;
+
         while (SDL_PollEvent(&event) != 0) {
             switch (event.type) {
             case SDL_QUIT:
@@ -31,6 +34,10 @@ public:
                 break;
             case SDL_KEYUP:
                 newKeyState[event.key.keysym.sym] = false;
+                break;
+            case SDL_MOUSEMOTION:
+                mouse_x_rel += event.motion.xrel;
+                mouse_y_rel += event.motion.yrel;
                 break;
             default:
                 break;
@@ -76,10 +83,23 @@ public:
         return k_states[k].released;
     }
 
+    float mouseX()
+    {
+        return (float)mouse_x_rel;
+    }
+
+    float mouseY()
+    {
+        return (float)mouse_y_rel;
+    }
+
 private:
     InputManager() {}
 
     bool quit = false;
+    int mouse_state = 0;
+    int mouse_x = 0, mouse_y = 0, mouse_x_rel = 0, mouse_y_rel = 0;
+
     std::map<SDL_Keycode, bool> newKeyState;
     std::map<SDL_Keycode, bool> oldKeyState;
     std::map<SDL_Keycode, keyState> k_states;

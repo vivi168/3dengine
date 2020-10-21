@@ -99,11 +99,8 @@ private:
             frame_start = SDL_GetTicks();
 
             poll_events();
-            process_input();
 
-            int mouse_x, mouse_y;
-            SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
-            camera.process_mouse((float)mouse_x, (float)mouse_y);
+            process_input();
 
             render();
 
@@ -117,6 +114,11 @@ private:
     void poll_events()
     {
         InputManager::getInstance().update();
+    }
+
+    void process_input()
+    {
+        camera.process_mouse(InputManager::getInstance().mouseX(), (float)InputManager::getInstance().mouseY());
 
         if (InputManager::getInstance().quitRequested()) {
             quit = true;
@@ -125,10 +127,7 @@ private:
         if (InputManager::getInstance().isPressed(SDLK_ESCAPE)) {
             quit = true;
         }
-    }
 
-    void process_input()
-    {
         if (InputManager::getInstance().isHeld(SDLK_w)) {
             camera.process_keyboard(CameraDirection::FORWARD, delta_time);
         }
@@ -179,10 +178,10 @@ private:
 
         GLuint model_loc = glGetUniformLocation(shader.id(), "model");
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
-        
+
         GLuint view_loc = glGetUniformLocation(shader.id(), "view");
         glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view));
-        
+
         GLuint projection_loc = glGetUniformLocation(shader.id(), "projection");
         glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
 
