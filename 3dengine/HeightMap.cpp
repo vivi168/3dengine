@@ -25,14 +25,16 @@ void HeightMap::gen_vertices(int width)
     for (int i = 0; i < pixels.size(); i++) {
         Vertex vertex;
 
-        int x, y;
+        int x, y, z;
         x = (i % width);
-        y = (i / width);
+        z = (i / width);
         
+        y = pixels[i];
+
         vertex.position = {
             x,
-            pixels[i] / 64,
-            y
+            (float)y / 255.0f * 50,
+            z
         };
 
         // TODO
@@ -48,13 +50,13 @@ void HeightMap::gen_vertices(int width)
         vertices.push_back(vertex);
 
         if (x < width - 1) {
-            if (y > 0) {
+            if (z > 0) {
                 indices.push_back(i);
                 indices.push_back(i + 1);
                 indices.push_back(i + 1 - width);
             }
             
-            if (y < height - 1) {
+            if (z < height - 1) {
                 indices.push_back(i);
                 indices.push_back(i + 1);
                 indices.push_back(i + width);

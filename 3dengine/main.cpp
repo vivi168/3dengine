@@ -172,7 +172,7 @@ private:
         model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 
         glm::mat4 view = camera.look_at();
-        glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
 
         GLuint model_loc = glGetUniformLocation(shader.id(), "model");
         glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
@@ -203,7 +203,7 @@ private:
         Mesh mesh3 = map.mesh();
 
         //meshes.push_back(mesh);
-        //meshes.push_back(mesh2);
+        meshes.push_back(mesh2);
         meshes.push_back(mesh3);
     }
 
