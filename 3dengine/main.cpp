@@ -14,6 +14,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "Camera.h"
+#include "HeightMap.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -37,7 +38,7 @@ private:
     SDL_Window* window;
     SDL_GLContext context;
     Shader shader;
-    Mesh mesh;
+    std::vector<Mesh> meshes;
     Camera camera;
     InputManager input_manager = InputManager::instance();
 
@@ -162,7 +163,7 @@ private:
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         shader.use();
 
@@ -182,7 +183,8 @@ private:
         GLuint projection_loc = glGetUniformLocation(shader.id(), "projection");
         glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        mesh.draw(shader);
+        for (auto mesh : meshes)
+            mesh.draw(shader);
 
         SDL_GL_SwapWindow(window);
     }
@@ -194,12 +196,21 @@ private:
 
         shader.load("shader", "shaders/");
 
-        mesh.init("assets/backpack.obj", "assets/");
+        //Mesh mesh("assets/backpack.obj", "assets/");
+        Mesh mesh2("assets/cube.obj", "assets/");
+        //HeightMap map("C:\\Users\\vbihl\\Desktop\\issou.png");
+        HeightMap map("assets/test.png");
+        Mesh mesh3 = map.mesh();
+
+        //meshes.push_back(mesh);
+        //meshes.push_back(mesh2);
+        meshes.push_back(mesh3);
     }
 
     void gl_cleanup()
     {
-        mesh.cleanup();
+        for (auto mesh : meshes)
+            mesh.cleanup();
         shader.unlink();
     }
 

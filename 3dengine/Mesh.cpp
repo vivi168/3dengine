@@ -35,13 +35,36 @@ namespace std {
     };
 }
 
-void Mesh::init(const std::string filename, const std::string basedir)
+Mesh::Mesh()
+{
+}
+
+Mesh::Mesh(const std::string filename, const std::string basedir)
 {
     bool loaded = load_model(filename, basedir);
 
      if (!loaded)
          return;
 
+     init();
+
+}
+
+Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
+{
+    // TODO called from height map
+    vertices = v;
+    indices = i;
+
+    Texture t = load_texture("assets/texture.png");
+    textures.push_back(t);
+
+    init();
+}
+
+
+void Mesh::init()
+{
     glGenVertexArrays(1, &vertex_array_obj);
     glGenBuffers(1, &vertex_buffer_obj);
     glGenBuffers(1, &element_buffer_obj);
@@ -67,7 +90,6 @@ void Mesh::init(const std::string filename, const std::string basedir)
     glEnableVertexAttribArray(TEXTUV_VB);
 
     glBindVertexArray(0);
-
 }
 
 void Mesh::draw(const Shader &shader)
@@ -179,6 +201,7 @@ bool Mesh::load_model(const std::string filename, const std::string basedir)
     }
 
     std::cout << vertices.size() << std::endl;
+    std::cout << indices.size() << std::endl;
 
     // TODO: multiple textures ?
     Texture t = load_texture(basedir + materials[0].diffuse_texname);

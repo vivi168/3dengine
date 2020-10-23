@@ -38,10 +38,13 @@ private:
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
 
+    void init();
     bool load_model(const std::string, const std::string);
 
 public:
-    void init(const std::string, const std::string);
+    Mesh();
+    Mesh(const std::string, const std::string);
+    Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
     void draw(const Shader&);
     void cleanup();
 };
