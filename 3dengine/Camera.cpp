@@ -4,7 +4,7 @@
 
 const float YAW = -glm::half_pi<float>();
 const float PITCH = 0.0f;
-const float SPEED = 92.5f;
+const float SPEED = 102.5f;
 const float SENSITIVITY = 0.002f;
 const float ZOOM = glm::quarter_pi<float>();
 

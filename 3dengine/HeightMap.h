@@ -9,6 +9,7 @@ class HeightMap
 {
 private:
     std::vector<unsigned int> pixels;
+    int min, max;
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
 

@@ -163,7 +163,7 @@ private:
     {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         shader.use();
 
@@ -194,15 +194,17 @@ private:
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
+        glEnable(GL_CULL_FACE);
+
         shader.load("shader", "shaders/");
 
-        //Mesh mesh("assets/backpack.obj", "assets/");
+        Mesh mesh("assets/backpack.obj", "assets/");
         Mesh mesh2("assets/cube.obj", "assets/");
-        //HeightMap map("C:\\Users\\vbihl\\Desktop\\issou.png");
+        //HeightMap map("C:\\Users\\vbihl\\Desktop\\big.png");
         HeightMap map("assets/test.png");
         Mesh mesh3 = map.mesh();
 
-        //meshes.push_back(mesh);
+        meshes.push_back(mesh);
         meshes.push_back(mesh2);
         meshes.push_back(mesh3);
     }
