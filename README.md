@@ -10,4 +10,4 @@ You need
 - gl3w
 - glm
 
-On windows, place `glw3.c` and `glm`/`SDL2` folders inside `vendor`
+On windows, place `gl3w.c` and `glm`/`SDL2` folders inside `vendor`
