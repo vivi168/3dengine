@@ -49,7 +49,8 @@ void HeightMap::gen_vertices(int width)
 
         // TODO
         vertex.texture_uv = {
-            0, 0
+            x,
+            -z
         };
 
         vertices.push_back(vertex);
@@ -76,5 +77,6 @@ void HeightMap::gen_vertices(int width)
 
 Mesh HeightMap::mesh()
 {
+    // TODO specify texture(s) path here ?
     return Mesh(vertices, indices);
 }

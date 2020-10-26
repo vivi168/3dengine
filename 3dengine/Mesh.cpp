@@ -56,7 +56,7 @@ Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
     vertices = v;
     indices = i;
 
-    Texture t = load_texture("assets/texture.png");
+    Texture t = load_texture("assets/grass.png");
     textures.push_back(t);
 
     init();
