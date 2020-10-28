@@ -39,7 +39,7 @@ Mesh::Mesh() { }
 
 Mesh::Mesh(const std::string filename, const std::string basedir)
 {
-    bool loaded = load_model(filename, basedir);
+    bool loaded = load_obj(filename, basedir);
 
      if (!loaded)
          return;
@@ -151,7 +151,7 @@ Texture load_texture(const std::string path)
     return texture;
 }
 
-bool Mesh::load_model(const std::string filename, const std::string basedir)
+bool Mesh::load_obj(const std::string filename, const std::string basedir)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;

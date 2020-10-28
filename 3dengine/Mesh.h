@@ -39,7 +39,7 @@ private:
     std::vector<Texture> textures;
 
     void init();
-    bool load_model(const std::string, const std::string);
+    bool load_obj(const std::string, const std::string);
 
 public:
     Mesh();
