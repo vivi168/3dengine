@@ -2,32 +2,34 @@
 #include <GL/gl3w.h>
 #include <glm/gtc/type_ptr.hpp>
 
-Model::Model(Mesh m)
+Model::Model(Mesh m, Shader* s)
 {
     mesh = m;
+    shader = s;
 
     model_translate = { 0.0f, 0.0f, 0.0f };
     model_scale = { 1.0f, 1.0f, 1.0f };
 }
 
-Model::Model(Mesh m, glm::vec3 t)
+Model::Model(Mesh m, Shader* s, glm::vec3 t)
 {
     mesh = m;
+    shader = s;
 
     model_translate = t;
     model_scale = { 1.0f, 1.0f, 1.0f };
 }
 
-void Model::draw(Shader& shader, glm::mat4 pv)
+void Model::draw(glm::mat4 pv)
 {
-    shader.use();
+    shader->use();
 
     glm::mat4 mat = mvp(pv);
 
-    GLuint mvp_loc = glGetUniformLocation(shader.id(), "mvp");
+    GLuint mvp_loc = glGetUniformLocation(shader->id(), "mvp");
     glUniformMatrix4fv(mvp_loc, 1, GL_FALSE, glm::value_ptr(mat));
 
-    mesh.draw(shader);
+    mesh.draw(*shader);
 }
 
 void Model::translate(glm::vec3 t)

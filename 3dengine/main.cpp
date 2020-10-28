@@ -37,7 +37,7 @@ public:
 private:
     SDL_Window* window;
     SDL_GLContext context;
-    Shader shader;
+    Shader shader, terrain_shader;
     std::vector<Model> models;
     Camera camera;
     InputManager input_manager = InputManager::instance();
@@ -169,7 +169,7 @@ private:
         glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
 
         for (auto m : models)
-            m.draw(shader, projection * view);
+            m.draw(projection * view);
 
         SDL_GL_SwapWindow(window);
     }
@@ -182,17 +182,18 @@ private:
         glEnable(GL_CULL_FACE);
 
         shader.load("shader", "shaders/");
+        terrain_shader.load("terrain", "shaders/");
 
         Mesh mesh("assets/backpack.obj", "assets/");
         Mesh mesh2("assets/cube.obj", "assets/");
         HeightMap map("assets/test.png");
         Mesh mesh3 = map.mesh();
 
-        Model m1(mesh, { 0.0f, 64.0f, -100.0f });
-        Model m2(mesh2);
-        Model m3(mesh3);
+        Model m1(mesh, &shader, { 0.0f, 64.0f, -100.0f });
+        Model m2(mesh2, &shader);
+        Model m3(mesh3, &terrain_shader);
 
-        m2.translate({ 0.0f, 128.0f, 0.0f });
+        m2.translate({ 0.0f, 128.0f / 255.0f * 50.0f, 0.0f });
 
         models.push_back(m1);
         models.push_back(m2);
@@ -204,6 +205,7 @@ private:
         for (auto m : models)
             m.cleanup();
         shader.unlink();
+        terrain_shader.unlink();
     }
 
     void cleanup()

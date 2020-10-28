@@ -35,16 +35,11 @@ namespace std {
     };
 }
 
-Mesh::Mesh()
-{
-    std::cout << "issou" << std::endl;
-}
+Mesh::Mesh() { }
 
 Mesh::Mesh(const std::string filename, const std::string basedir)
 {
     bool loaded = load_model(filename, basedir);
-
-    std::cout << "issourire" << std::endl;
 
      if (!loaded)
          return;
@@ -64,7 +59,6 @@ Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
 
     init();
 }
-
 
 void Mesh::init()
 {
