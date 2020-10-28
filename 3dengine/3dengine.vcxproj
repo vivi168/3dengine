@@ -151,6 +151,7 @@
     <ClCompile Include="HeightMap.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="vendor\gl3w.c" />
   </ItemGroup>
   <ItemGroup>
@@ -158,11 +159,14 @@
     <ClInclude Include="HeightMap.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag" />
     <None Include="shaders\shader.vert" />
+    <None Include="shaders\terrain.frag" />
+    <None Include="shaders\terrain.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

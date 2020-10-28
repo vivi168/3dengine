@@ -30,6 +30,9 @@
     <ClCompile Include="vendor\gl3w.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h">
@@ -47,12 +50,21 @@
     <ClInclude Include="HeightMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\shader.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\terrain.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\terrain.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

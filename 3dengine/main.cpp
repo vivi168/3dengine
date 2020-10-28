@@ -12,7 +12,7 @@
 
 #include "InputManager.h"
 #include "Shader.h"
-#include "Mesh.h"
+#include "Model.h"
 #include "Camera.h"
 #include "HeightMap.h"
 
@@ -38,7 +38,7 @@ private:
     SDL_Window* window;
     SDL_GLContext context;
     Shader shader;
-    std::vector<Mesh> meshes;
+    std::vector<Model> models;
     Camera camera;
     InputManager input_manager = InputManager::instance();
 
@@ -165,26 +165,11 @@ private:
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        shader.use();
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-
         glm::mat4 view = camera.look_at();
         glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
 
-        GLuint model_loc = glGetUniformLocation(shader.id(), "model");
-        glUniformMatrix4fv(model_loc, 1, GL_FALSE, glm::value_ptr(model));
-
-        GLuint view_loc = glGetUniformLocation(shader.id(), "view");
-        glUniformMatrix4fv(view_loc, 1, GL_FALSE, glm::value_ptr(view));
-
-        GLuint projection_loc = glGetUniformLocation(shader.id(), "projection");
-        glUniformMatrix4fv(projection_loc, 1, GL_FALSE, glm::value_ptr(projection));
-
-        for (auto mesh : meshes)
-            mesh.draw(shader);
+        for (auto m : models)
+            m.draw(shader, projection * view);
 
         SDL_GL_SwapWindow(window);
     }
@@ -200,19 +185,24 @@ private:
 
         Mesh mesh("assets/backpack.obj", "assets/");
         Mesh mesh2("assets/cube.obj", "assets/");
-        //HeightMap map("C:\\Users\\vbihl\\Desktop\\big.png");
         HeightMap map("assets/test.png");
         Mesh mesh3 = map.mesh();
 
-        meshes.push_back(mesh);
-        meshes.push_back(mesh2);
-        meshes.push_back(mesh3);
+        Model m1(mesh, { 0.0f, 64.0f, -100.0f });
+        Model m2(mesh2);
+        Model m3(mesh3);
+
+        m2.translate({ 0.0f, 128.0f, 0.0f });
+
+        models.push_back(m1);
+        models.push_back(m2);
+        models.push_back(m3);
     }
 
     void gl_cleanup()
     {
-        for (auto mesh : meshes)
-            mesh.cleanup();
+        for (auto m : models)
+            m.cleanup();
         shader.unlink();
     }
 

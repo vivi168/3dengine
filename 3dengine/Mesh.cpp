@@ -37,11 +37,14 @@ namespace std {
 
 Mesh::Mesh()
 {
+    std::cout << "issou" << std::endl;
 }
 
 Mesh::Mesh(const std::string filename, const std::string basedir)
 {
     bool loaded = load_model(filename, basedir);
+
+    std::cout << "issourire" << std::endl;
 
      if (!loaded)
          return;
@@ -125,7 +128,10 @@ Texture load_texture(const std::string path)
     Texture texture;
     int width, height, channels, mode;
     unsigned char* img_data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+    
     mode = channels == 4 ? GL_RGBA : GL_RGB;
+
+    std::cout << path << channels << mode << std::endl;
 
     glGenTextures(1, &texture_id);
 
@@ -133,6 +139,11 @@ Texture load_texture(const std::string path)
         glBindTexture(GL_TEXTURE_2D, texture_id);
         glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data);
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     else {
         std::cerr << "Error while loading image\n";
