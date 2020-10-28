@@ -20,7 +20,7 @@ Model::Model(Mesh m, Shader* s, glm::vec3 t)
     model_scale = { 1.0f, 1.0f, 1.0f };
 }
 
-void Model::draw(glm::mat4 pv)
+void Model::draw(const glm::mat4& pv)
 {
     shader->use();
 
@@ -42,7 +42,7 @@ void Model::scale(glm::vec3 s)
     model_scale = s;
 }
 
-glm::mat4 Model::mvp(glm::mat4 pv)
+glm::mat4 Model::mvp(const glm::mat4& pv)
 {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, model_translate);

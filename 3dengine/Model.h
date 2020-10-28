@@ -9,7 +9,7 @@ class Model
 public:
     Model(Mesh, Shader*);
     Model(Mesh, Shader*, glm::vec3);
-    void draw(glm::mat4);
+    void draw(const glm::mat4&);
     void translate(glm::vec3);
     void scale(glm::vec3);
     void cleanup();
@@ -18,5 +18,5 @@ private:
     Shader* shader;
     glm::vec3 model_translate, model_scale;
 
-    glm::mat4 mvp(glm::mat4);
+    glm::mat4 mvp(const glm::mat4&);
 };

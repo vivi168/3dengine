@@ -167,9 +167,10 @@ private:
 
         glm::mat4 view = camera.look_at();
         glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
+        glm::mat4 pv = projection * view;
 
         for (auto m : models)
-            m.draw(projection * view);
+            m.draw(pv);
 
         SDL_GL_SwapWindow(window);
     }
