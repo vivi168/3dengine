@@ -20,7 +20,7 @@ struct Vertex {
 
 struct Texture {
     GLuint id;
-    std::string path;
+    std::string name;
 };
 
 class Mesh
@@ -39,6 +39,7 @@ private:
     std::vector<Texture> textures;
 
     void init();
+    GLuint load_texture(const std::string);
     bool load_obj(const std::string, const std::string);
 
 public:

@@ -12,8 +12,6 @@
 #include <algorithm>
 #include <unordered_map>
 
-Texture load_texture(const std::string);
-
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v)
 {
@@ -54,8 +52,11 @@ Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
     vertices = v;
     indices = i;
 
-    Texture t = load_texture("assets/grass.png");
-    textures.push_back(t);
+    textures.push_back({ load_texture("assets/blendmap.png"), "blendmap" });
+    textures.push_back({ load_texture("assets/grass.png"), "base_texture" });
+    textures.push_back({ load_texture("assets/paved.png"), "r_texture" });
+    textures.push_back({ load_texture("assets/mud.png"), "g_texture" });
+    textures.push_back({ load_texture("assets/grassFlowers.png"), "b_texture" });
 
     init();
 }
@@ -94,7 +95,7 @@ void Mesh::draw(const Shader &shader)
     for (auto i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
 
-        glUniform1i(glGetUniformLocation(shader.id(), "texture_sampler"), i);
+        glUniform1i(glGetUniformLocation(shader.id(), textures[i].name.c_str()), i);
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }
 
@@ -115,11 +116,10 @@ void Mesh::cleanup()
     }
 }
 
-Texture load_texture(const std::string path)
+GLuint Mesh::load_texture(const std::string path)
 {
     // todo load texture once
     GLuint texture_id;
-    Texture texture;
     int width, height, channels, mode;
     unsigned char* img_data = stbi_load(path.c_str(), &width, &height, &channels, 0);
     
@@ -145,10 +145,7 @@ Texture load_texture(const std::string path)
 
     stbi_image_free(img_data);
 
-    texture.id = texture_id;
-    texture.path = path;
-
-    return texture;
+    return texture_id;
 }
 
 bool Mesh::load_obj(const std::string filename, const std::string basedir)
@@ -209,7 +206,8 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
     std::cout << indices.size() << std::endl;
 
     // TODO: multiple textures ?
-    Texture t = load_texture(basedir + materials[0].diffuse_texname);
+    GLuint tid = load_texture(basedir + materials[0].diffuse_texname);
+    Texture t = { tid, "texture_sampler" };
     textures.push_back(t);
 
     return true;

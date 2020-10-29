@@ -49,8 +49,8 @@ void HeightMap::gen_vertices(int width)
 
         // TODO
         vertex.texture_uv = {
-            x,
-            -z
+            (float)x / (width - 1),
+            (float)-z / (height - 1)
         };
 
         vertices.push_back(vertex);
