@@ -190,7 +190,7 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
 
             vertex.texture_uv = {
                 attrib.texcoords[2 * index.texcoord_index + 0],
-                attrib.texcoords[2 * index.texcoord_index + 1]
+                1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
             };
 
             if (unique_vertices.count(vertex) == 0) {
