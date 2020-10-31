@@ -23,6 +23,15 @@ struct Texture {
     std::string name;
 };
 
+struct Shape {
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+    std::vector<Texture> textures;
+    std::string name;
+    int material_id;
+    GLuint vertex_array_obj, vertex_buffer_obj, element_buffer_obj;
+};
+
 class Mesh
 {
 private:
@@ -38,7 +47,10 @@ private:
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
 
+    std::vector<Shape> m_shapes;
+
     void init();
+    void init_shapes();
     GLuint load_texture(const std::string);
     bool load_obj(const std::string, const std::string);
 
@@ -47,5 +59,6 @@ public:
     Mesh(const std::string, const std::string);
     Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
     void draw(const Shader&);
+    void draw_shapes(const Shader&);
     void cleanup();
 };

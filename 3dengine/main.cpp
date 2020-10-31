@@ -185,7 +185,7 @@ private:
         shader.load("shader", "shaders/");
         terrain_shader.load("terrain", "shaders/");
 
-        Mesh mesh("assets/dragon/dragon.obj", "assets/dragon/");
+        Mesh mesh("assets/inn/inn.obj", "assets/inn/");
         Mesh mesh2("assets/human/human.obj", "assets/human/");
         HeightMap map("assets/test.png");
         Mesh mesh3 = map.mesh();

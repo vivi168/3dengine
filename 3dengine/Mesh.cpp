@@ -43,7 +43,6 @@ Mesh::Mesh(const std::string filename, const std::string basedir)
          return;
 
      init();
-
 }
 
 Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
@@ -63,6 +62,11 @@ Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
 
 void Mesh::init()
 {
+    if (!m_shapes.empty()) {
+        init_shapes();
+        return;
+    }
+
     glGenVertexArrays(1, &vertex_array_obj);
     glGenBuffers(1, &vertex_buffer_obj);
     glGenBuffers(1, &element_buffer_obj);
@@ -90,8 +94,44 @@ void Mesh::init()
     glBindVertexArray(0);
 }
 
+void Mesh::init_shapes()
+{
+    for (int i = 0; i < m_shapes.size(); i++) {
+        glGenVertexArrays(1, &(m_shapes[i].vertex_array_obj));
+        glGenBuffers(1, &(m_shapes[i].vertex_buffer_obj));
+        glGenBuffers(1, &(m_shapes[i].element_buffer_obj));
+
+        glBindVertexArray(m_shapes[i].vertex_array_obj);
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_shapes[i].vertex_buffer_obj);
+        glBufferData(GL_ARRAY_BUFFER, m_shapes[i].vertices.size() * sizeof(Vertex), &(m_shapes[i].vertices[0]), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shapes[i].element_buffer_obj);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_shapes[i].indices.size() * sizeof(GLuint), &(m_shapes[i].indices[0]), GL_STATIC_DRAW);
+
+        // vertex position
+        glVertexAttribPointer(POSITION_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
+        glEnableVertexAttribArray(POSITION_VB);
+
+        // vertex normals
+        glVertexAttribPointer(NORMAL_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
+        glEnableVertexAttribArray(NORMAL_VB);
+
+        // vertex texture coordinates
+        glVertexAttribPointer(TEXTUV_VB, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texture_uv));
+        glEnableVertexAttribArray(TEXTUV_VB);
+
+        glBindVertexArray(0);
+    }
+}
+
 void Mesh::draw(const Shader &shader)
 {
+    if (!m_shapes.empty()) {
+        draw_shapes(shader);
+        return;
+    }
+
     for (auto i = 0; i < textures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
 
@@ -103,6 +143,24 @@ void Mesh::draw(const Shader &shader)
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
+}
+
+void Mesh::draw_shapes(const Shader& shader)
+{
+    for (int k = 0; k < m_shapes.size(); k++) {
+        for (auto i = 0; i < m_shapes[0].textures.size(); i++) {
+            glActiveTexture(GL_TEXTURE0 + i);
+
+            glUniform1i(glGetUniformLocation(shader.id(), m_shapes[k].textures[i].name.c_str()), i);
+            glBindTexture(GL_TEXTURE_2D, m_shapes[k].textures[i].id);
+        }
+
+        glBindVertexArray(m_shapes[k].vertex_array_obj);
+        glDrawElements(GL_TRIANGLES, m_shapes[k].indices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+        glActiveTexture(GL_TEXTURE0);
+    }
+
 }
 
 void Mesh::cleanup()
@@ -173,6 +231,9 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
     std::unordered_map<Vertex, uint32_t> unique_vertices{};
 
     for (const auto& shape : shapes) {
+        Shape m_shape;
+        std::unordered_map<Vertex, uint32_t> unique_shape_vertices{};
+
         for (const auto& index : shape.mesh.indices) {
             Vertex vertex;
 
@@ -199,7 +260,21 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
             }
 
             indices.push_back(unique_vertices[vertex]);
+
+            if (unique_shape_vertices.count(vertex) == 0) {
+                unique_shape_vertices[vertex] = static_cast<uint32_t>(m_shape.vertices.size());
+                m_shape.vertices.push_back(vertex);
+            }
+
+            m_shape.indices.push_back(unique_shape_vertices[vertex]);
         }
+
+        m_shape.material_id = shape.mesh.material_ids[0];
+        m_shape.name = shape.name;
+        GLuint tid = load_texture(basedir + materials[m_shape.material_id].diffuse_texname);
+        Texture t = { tid, "texture_sampler" };
+        m_shape.textures.push_back(t);
+        m_shapes.push_back(m_shape);
     }
 
     std::cout << vertices.size() << std::endl;
