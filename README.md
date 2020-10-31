@@ -4,10 +4,4 @@ Simple demo to learn more about 3d, opengl and stuff.
 
 # Building
 
-You need
-
-- SDL2
-- gl3w
-- glm
-
-On windows, place `gl3w.c` and `glm`/`SDL2` folders inside `vendor`
+Open `3dengine.sln` with Visual Studio 2019, it should build out of the box.
