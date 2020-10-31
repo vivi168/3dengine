@@ -62,11 +62,6 @@ Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
 
 void Mesh::init()
 {
-    if (!m_shapes.empty()) {
-        init_shapes();
-        return;
-    }
-
     glGenVertexArrays(1, &vertex_array_obj);
     glGenBuffers(1, &vertex_buffer_obj);
     glGenBuffers(1, &element_buffer_obj);
@@ -92,37 +87,6 @@ void Mesh::init()
     glEnableVertexAttribArray(TEXTUV_VB);
 
     glBindVertexArray(0);
-}
-
-void Mesh::init_shapes()
-{
-    for (int i = 0; i < m_shapes.size(); i++) {
-        glGenVertexArrays(1, &(m_shapes[i].vertex_array_obj));
-        glGenBuffers(1, &(m_shapes[i].vertex_buffer_obj));
-        glGenBuffers(1, &(m_shapes[i].element_buffer_obj));
-
-        glBindVertexArray(m_shapes[i].vertex_array_obj);
-
-        glBindBuffer(GL_ARRAY_BUFFER, m_shapes[i].vertex_buffer_obj);
-        glBufferData(GL_ARRAY_BUFFER, m_shapes[i].vertices.size() * sizeof(Vertex), &(m_shapes[i].vertices[0]), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_shapes[i].element_buffer_obj);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_shapes[i].indices.size() * sizeof(GLuint), &(m_shapes[i].indices[0]), GL_STATIC_DRAW);
-
-        // vertex position
-        glVertexAttribPointer(POSITION_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-        glEnableVertexAttribArray(POSITION_VB);
-
-        // vertex normals
-        glVertexAttribPointer(NORMAL_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
-        glEnableVertexAttribArray(NORMAL_VB);
-
-        // vertex texture coordinates
-        glVertexAttribPointer(TEXTUV_VB, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texture_uv));
-        glEnableVertexAttribArray(TEXTUV_VB);
-
-        glBindVertexArray(0);
-    }
 }
 
 void Mesh::draw(const Shader &shader)
@@ -155,12 +119,11 @@ void Mesh::draw_shapes(const Shader& shader)
             glBindTexture(GL_TEXTURE_2D, m_shapes[k].textures[i].id);
         }
 
-        glBindVertexArray(m_shapes[k].vertex_array_obj);
-        glDrawElements(GL_TRIANGLES, m_shapes[k].indices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(vertex_array_obj);
+        glDrawElements(GL_TRIANGLES, m_shapes[k].indices_count, GL_UNSIGNED_INT, (void*)(sizeof(int) * m_shapes[k].indices_start));
         glBindVertexArray(0);
         glActiveTexture(GL_TEXTURE0);
     }
-
 }
 
 void Mesh::cleanup()
@@ -176,11 +139,10 @@ void Mesh::cleanup()
 
 GLuint Mesh::load_texture(const std::string path)
 {
-    // todo load texture once
     GLuint texture_id;
     int width, height, channels, mode;
     unsigned char* img_data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-    
+
     mode = channels == 4 ? GL_RGBA : GL_RGB;
 
     std::cout << path << channels << mode << std::endl;
@@ -232,7 +194,7 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
 
     for (const auto& shape : shapes) {
         Shape m_shape;
-        std::unordered_map<Vertex, uint32_t> unique_shape_vertices{};
+        m_shape.indices_start = indices.size();
 
         for (const auto& index : shape.mesh.indices) {
             Vertex vertex;
@@ -260,30 +222,19 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
             }
 
             indices.push_back(unique_vertices[vertex]);
-
-            if (unique_shape_vertices.count(vertex) == 0) {
-                unique_shape_vertices[vertex] = static_cast<uint32_t>(m_shape.vertices.size());
-                m_shape.vertices.push_back(vertex);
-            }
-
-            m_shape.indices.push_back(unique_shape_vertices[vertex]);
         }
 
         m_shape.material_id = shape.mesh.material_ids[0];
         m_shape.name = shape.name;
-        GLuint tid = load_texture(basedir + materials[m_shape.material_id].diffuse_texname);
-        Texture t = { tid, "texture_sampler" };
+        m_shape.indices_count = indices.size() - m_shape.indices_start;
+        // Maybe find a way to reuse texture if already loaded
+        Texture t = { load_texture(basedir + materials[m_shape.material_id].diffuse_texname), "texture_sampler" };
         m_shape.textures.push_back(t);
         m_shapes.push_back(m_shape);
     }
 
     std::cout << vertices.size() << std::endl;
     std::cout << indices.size() << std::endl;
-
-    // TODO: multiple textures ?
-    GLuint tid = load_texture(basedir + materials[0].diffuse_texname);
-    Texture t = { tid, "texture_sampler" };
-    textures.push_back(t);
 
     return true;
 }

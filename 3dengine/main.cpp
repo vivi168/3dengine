@@ -190,7 +190,7 @@ private:
         HeightMap map("assets/test.png");
         Mesh mesh3 = map.mesh();
 
-        Model m1(mesh, &shader, { 0.0f, 64.0f, -100.0f });
+        Model m1(mesh, &shader, { 32.0f, 64.0f, -100.0f });
         Model m2(mesh2, &shader);
         Model m3(mesh3, &terrain_shader);
 
