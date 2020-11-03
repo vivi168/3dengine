@@ -340,11 +340,3 @@ ASALocalRun/
 healthchecksdb
 
 3dengine/assets/
-
-.DS_Store
-*.dSYM
-CMakeCache.txt
-CMakeFiles/
-Makefile
-cmake_install.cmake
-3dengine.exe
