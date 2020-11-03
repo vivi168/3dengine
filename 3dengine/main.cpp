@@ -78,7 +78,6 @@ private:
             exit(EXIT_FAILURE);
         }
 
-        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         SDL_SetRelativeMouseMode(SDL_TRUE);
     }
 
@@ -177,6 +176,7 @@ private:
 
     void gl_init()
     {
+        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 

@@ -17,6 +17,12 @@ enum class CameraDirection {
 
 class Camera
 {
+public:
+    Camera();
+    glm::mat4 look_at();
+    void process_keyboard(CameraDirection, float);
+    void process_mouse(float, float);
+    float zoom();
 private:
     glm::vec3 position;
     glm::vec3 front, up, right;
@@ -28,10 +34,4 @@ private:
 
     void update();
     void constrain_pitch();
-public:
-    Camera();
-    glm::mat4 look_at();
-    void process_keyboard(CameraDirection, float);
-    void process_mouse(float, float);
-    float zoom();
 };

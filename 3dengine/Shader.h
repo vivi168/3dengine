@@ -9,24 +9,6 @@
 
 class Shader
 {
-private:
-    GLuint program = 0;
-
-    void check_compile_errors(unsigned int shader, std::string type)
-    {
-        int success;
-        char info_log[1024];
-
-        if (type == "PROGRAM")
-            glGetProgramiv(shader, GL_LINK_STATUS, &success);
-        else
-            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-        if (!success) {
-            glGetShaderInfoLog(shader, 1024, NULL, info_log);
-            std::cerr << "Error: " << type << std::endl << info_log << std::endl;
-        }
-    }
 public:
     void load(const std::string filename, const std::string basedir)
     {
@@ -94,5 +76,24 @@ public:
     GLuint id() const
     {
         return program;
+    }
+
+private:
+    GLuint program = 0;
+
+    void check_compile_errors(unsigned int shader, std::string type)
+    {
+        int success;
+        char info_log[1024];
+
+        if (type == "PROGRAM")
+            glGetProgramiv(shader, GL_LINK_STATUS, &success);
+        else
+            glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+        if (!success) {
+            glGetShaderInfoLog(shader, 1024, NULL, info_log);
+            std::cerr << "Error: " << type << std::endl << info_log << std::endl;
+        }
     }
 };

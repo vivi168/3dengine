@@ -31,6 +31,14 @@ struct Shape {
 
 class Mesh
 {
+public:
+    Mesh();
+    Mesh(const std::string, const std::string);
+    Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
+    void draw(const Shader&);
+    void draw_shapes(const Shader&);
+    void cleanup();
+
 private:
     GLuint vertex_array_obj, vertex_buffer_obj, element_buffer_obj;
 
@@ -49,12 +57,4 @@ private:
     void init();
     GLuint load_texture(const std::string);
     bool load_obj(const std::string, const std::string);
-
-public:
-    Mesh();
-    Mesh(const std::string, const std::string);
-    Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
-    void draw(const Shader&);
-    void draw_shapes(const Shader&);
-    void cleanup();
 };
