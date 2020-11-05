@@ -26,7 +26,7 @@ struct Texture {
 struct Shape {
     std::vector<Texture> textures;
     std::string name;
-    int material_id, indices_count, indices_start;
+    int indices_count, indices_start;
 };
 
 class Mesh
@@ -36,7 +36,6 @@ public:
     Mesh(const std::string, const std::string);
     Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
     void draw(const Shader&);
-    void draw_shapes(const Shader&);
     void cleanup();
 
 private:

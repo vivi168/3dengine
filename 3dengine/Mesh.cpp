@@ -51,11 +51,19 @@ Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
     vertices = v;
     indices = i;
 
-    textures.push_back({ load_texture("assets/blendmap.png"), "blendmap" });
-    textures.push_back({ load_texture("assets/grass.png"), "base_texture" });
-    textures.push_back({ load_texture("assets/paved.png"), "r_texture" });
-    textures.push_back({ load_texture("assets/mud.png"), "g_texture" });
-    textures.push_back({ load_texture("assets/grassFlowers.png"), "b_texture" });
+    Shape shape;
+
+    shape.name = "terrain";
+    shape.indices_start = 0;
+    shape.indices_count = indices.size();
+
+    shape.textures.push_back({ load_texture("assets/blendmap.png"), "blendmap" });
+    shape.textures.push_back({ load_texture("assets/grass.png"), "base_texture" });
+    shape.textures.push_back({ load_texture("assets/paved.png"), "r_texture" });
+    shape.textures.push_back({ load_texture("assets/mud.png"), "g_texture" });
+    shape.textures.push_back({ load_texture("assets/grassFlowers.png"), "b_texture" });
+
+    m_shapes.push_back(shape);
 
     init();
 }
@@ -89,30 +97,10 @@ void Mesh::init()
     glBindVertexArray(0);
 }
 
-void Mesh::draw(const Shader &shader)
-{
-    if (!m_shapes.empty()) {
-        draw_shapes(shader);
-        return;
-    }
-
-    for (auto i = 0; i < textures.size(); i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
-
-        glUniform1i(glGetUniformLocation(shader.id(), textures[i].name.c_str()), i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
-    }
-
-    glBindVertexArray(vertex_array_obj);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-}
-
-void Mesh::draw_shapes(const Shader& shader)
+void Mesh::draw(const Shader& shader)
 {
     for (int k = 0; k < m_shapes.size(); k++) {
-        for (auto i = 0; i < m_shapes[0].textures.size(); i++) {
+        for (auto i = 0; i < m_shapes[k].textures.size(); i++) {
             glActiveTexture(GL_TEXTURE0 + i);
 
             glUniform1i(glGetUniformLocation(shader.id(), m_shapes[k].textures[i].name.c_str()), i);
@@ -189,6 +177,7 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
         std::cerr << "Failed to load / parse.obj" << std::endl;
         return false;
     }
+    std::cout << "LOADED OBJ " << filename << std::endl;
 
     std::unordered_map<Vertex, uint32_t> unique_vertices{};
 
@@ -224,13 +213,14 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
             indices.push_back(unique_vertices[vertex]);
         }
 
-        m_shape.material_id = shape.mesh.material_ids[0];
         m_shape.name = shape.name;
         m_shape.indices_count = indices.size() - m_shape.indices_start;
         // Maybe find a way to reuse texture if already loaded
-        Texture t = { load_texture(basedir + materials[m_shape.material_id].diffuse_texname), "texture_sampler" };
+        Texture t = { load_texture(basedir + materials[shape.mesh.material_ids[0]].diffuse_texname), "texture_sampler" };
         m_shape.textures.push_back(t);
         m_shapes.push_back(m_shape);
+        std::cout << "CREATED SHAPE " << m_shape.name << std::endl;
+
     }
 
     std::cout << vertices.size() << std::endl;
