@@ -46,10 +46,10 @@ Mesh::Mesh(const std::string filename, const std::string basedir)
 }
 
 Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
+    : vertices(v)
+    , indices(i)
 {
     // TODO called from height map
-    vertices = v;
-    indices = i;
 
     Shape shape;
 
@@ -120,8 +120,10 @@ void Mesh::cleanup()
     glDeleteBuffers(1, &vertex_buffer_obj);
     glDeleteBuffers(1, &element_buffer_obj);
 
-    for (auto t : textures) {
-        glDeleteTextures(1, &t.id);
+    for (auto s : m_shapes) {
+        for (auto t : s.textures) {
+            glDeleteTextures(1, &t.id);
+        }
     }
 }
 

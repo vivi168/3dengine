@@ -9,17 +9,15 @@ const float SENSITIVITY = 0.002f;
 const float ZOOM = glm::quarter_pi<float>();
 
 Camera::Camera()
+    : position({ 0.0f, 0.0f, 3.0f })
+    , world_up({ 0.0f, 1.0f, 0.0f })
+    , yaw(YAW)
+    , pitch(PITCH)
+    , speed(SPEED)
+    , sensitivity(SENSITIVITY)
+    , m_zoom(ZOOM)
+    , m_constrain_pitch(true)
 {
-    position = glm::vec3(0.0f, 0.0f, 3.0f);
-    world_up = glm::vec3(0.0f, 1.0f, 0.0f);
-
-    yaw = YAW;
-    pitch = PITCH;
-    speed = SPEED;
-    sensitivity = SENSITIVITY;
-    m_zoom = ZOOM;
-    m_constrain_pitch = true;
-
     update();
 }
 

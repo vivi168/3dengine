@@ -49,7 +49,6 @@ private:
 
     std::vector<Vertex> vertices;
     std::vector<GLuint> indices;
-    std::vector<Texture> textures;
 
     std::vector<Shape> m_shapes;
 
