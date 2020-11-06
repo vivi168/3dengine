@@ -15,6 +15,8 @@
 #include "Model.h"
 #include "Camera.h"
 #include "HeightMap.h"
+#include "Scene.h"
+#include "Renderer.h"
 
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
@@ -38,8 +40,9 @@ private:
     SDL_Window* window;
     SDL_GLContext context;
     Shader shader, terrain_shader;
-    std::vector<Model> models;
+    Scene scene;
     Camera camera;
+    Renderer renderer;
     InputManager input_manager = InputManager::instance();
 
     float delta_time;
@@ -160,27 +163,14 @@ private:
 
     void render()
     {
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        glm::mat4 view = camera.look_at();
-        glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
-        glm::mat4 pv = projection * view;
-
-        for (auto m : models)
-            m.draw(pv);
+        renderer.render(scene, camera);
 
         SDL_GL_SwapWindow(window);
     }
 
     void gl_init()
     {
-        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
-
-        glEnable(GL_CULL_FACE);
+        renderer.init();
 
         shader.load("shader", "shaders/");
         terrain_shader.load("terrain", "shaders/");
@@ -196,14 +186,14 @@ private:
 
         m2.translate({ 0.0f, 128.0f / 255.0f * 50.0f, 0.0f });
 
-        models.push_back(m1);
-        models.push_back(m2);
-        models.push_back(m3);
+        scene.add_model(m1);
+        scene.add_model(m2);
+        scene.add_model(m3);
     }
 
     void gl_cleanup()
     {
-        for (auto m : models)
+        for (auto m : scene.models)
             m.cleanup();
         shader.unlink();
         terrain_shader.unlink();
