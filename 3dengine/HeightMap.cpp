@@ -26,7 +26,7 @@ HeightMap::HeightMap(const std::string filepath)
 void HeightMap::gen_vertices(int width)
 {
     std::cout << "Generate mesh " << width << std::endl;
-    int height = pixels.size() / width;
+    int height = static_cast<int>(pixels.size()) / width;
     for (int i = 0; i < pixels.size(); i++) {
         Vertex vertex;
 

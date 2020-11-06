@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+unsigned int Mesh::next_id = 0;
+
 template <class T>
 inline void hash_combine(std::size_t& seed, const T& v)
 {
@@ -33,9 +35,12 @@ namespace std {
     };
 }
 
-Mesh::Mesh() { }
+Mesh::Mesh()
+    : id(next_id++)
+{ }
 
 Mesh::Mesh(const std::string filename, const std::string basedir)
+    : id(next_id++)
 {
     bool loaded = load_obj(filename, basedir);
 
@@ -45,9 +50,10 @@ Mesh::Mesh(const std::string filename, const std::string basedir)
      init();
 }
 
-Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
-    : vertices(v)
-    , indices(i)
+Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<GLuint> indices)
+    : id(next_id++)
+    , m_vertices(vertices)
+    , m_indices(indices)
 {
     // TODO called from height map
 
@@ -55,7 +61,7 @@ Mesh::Mesh(const std::vector<Vertex> v, const std::vector<GLuint> i)
 
     shape.name = "terrain";
     shape.indices_start = 0;
-    shape.indices_count = indices.size();
+    shape.indices_count = static_cast<unsigned int>(m_indices.size());
 
     shape.textures.push_back({ load_texture("assets/blendmap.png"), "blendmap" });
     shape.textures.push_back({ load_texture("assets/grass.png"), "base_texture" });
@@ -77,10 +83,10 @@ void Mesh::init()
     glBindVertexArray(vertex_array_obj);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_obj);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(GLuint), &m_indices[0], GL_STATIC_DRAW);
 
     // vertex position
     glVertexAttribPointer(POSITION_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
@@ -181,11 +187,11 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
     }
     std::cout << "LOADED OBJ " << filename << std::endl;
 
-    std::unordered_map<Vertex, uint32_t> unique_vertices{};
+    std::unordered_map<Vertex, GLuint> unique_vertices{};
 
     for (const auto& shape : shapes) {
-        Shape m_shape;
-        m_shape.indices_start = indices.size();
+        Shape s;
+        s.indices_start = static_cast<unsigned int>(m_indices.size());
 
         for (const auto& index : shape.mesh.indices) {
             Vertex vertex;
@@ -208,25 +214,25 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
             };
 
             if (unique_vertices.count(vertex) == 0) {
-                unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
+                unique_vertices[vertex] = static_cast<GLuint>(m_vertices.size());
+                m_vertices.push_back(vertex);
             }
 
-            indices.push_back(unique_vertices[vertex]);
+            m_indices.push_back(unique_vertices[vertex]);
         }
 
-        m_shape.name = shape.name;
-        m_shape.indices_count = indices.size() - m_shape.indices_start;
+        s.name = shape.name;
+        s.indices_count = static_cast<unsigned int>(m_indices.size()) - s.indices_start;
         // Maybe find a way to reuse texture if already loaded
         Texture t = { load_texture(basedir + materials[shape.mesh.material_ids[0]].diffuse_texname), "texture_sampler" };
-        m_shape.textures.push_back(t);
-        m_shapes.push_back(m_shape);
-        std::cout << "CREATED SHAPE " << m_shape.name << std::endl;
+        s.textures.push_back(t);
+        m_shapes.push_back(s);
+        std::cout << "CREATED SHAPE " << s.name << std::endl;
 
     }
 
-    std::cout << vertices.size() << std::endl;
-    std::cout << indices.size() << std::endl;
+    std::cout << m_vertices.size() << std::endl;
+    std::cout << m_indices.size() << std::endl;
 
     return true;
 }
