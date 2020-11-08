@@ -3,9 +3,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
@@ -46,11 +43,9 @@ Mesh::Mesh(const std::string filename, const std::string basedir)
 
      if (!loaded)
          return;
-
-     init();
 }
 
-Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<GLuint> indices)
+Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<unsigned int> indices)
     : id(next_id++)
     , m_vertices(vertices)
     , m_indices(indices)
@@ -63,105 +58,29 @@ Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<GLuint> indices
     shape.indices_start = 0;
     shape.indices_count = static_cast<unsigned int>(m_indices.size());
 
-    shape.textures.push_back({ load_texture("assets/blendmap.png"), "blendmap" });
-    shape.textures.push_back({ load_texture("assets/grass.png"), "base_texture" });
-    shape.textures.push_back({ load_texture("assets/paved.png"), "r_texture" });
-    shape.textures.push_back({ load_texture("assets/mud.png"), "g_texture" });
-    shape.textures.push_back({ load_texture("assets/grassFlowers.png"), "b_texture" });
+    std::vector<std::string> textures = {
+        "assets/blendmap.png",
+        "assets/grass.png",
+        "assets/paved.png",
+        "assets/mud.png",
+        "assets/grassFlowers.png"
+    };
+
+    std::vector<std::string> uniforms = {
+        "blendmap",
+        "base_texture",
+        "r_texture",
+        "g_texture",
+        "b_texture"
+    };
+
+    for (int i = 0; i < 5; i++) {
+        Texture t(textures[i]);
+        Material m = { uniforms[i], t };
+        shape.materials.push_back(m);
+    }
 
     m_shapes.push_back(shape);
-
-    init();
-}
-
-void Mesh::init()
-{
-    glGenVertexArrays(1, &vertex_array_obj);
-    glGenBuffers(1, &vertex_buffer_obj);
-    glGenBuffers(1, &element_buffer_obj);
-
-    glBindVertexArray(vertex_array_obj);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
-    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_obj);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(GLuint), &m_indices[0], GL_STATIC_DRAW);
-
-    // vertex position
-    glVertexAttribPointer(POSITION_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-    glEnableVertexAttribArray(POSITION_VB);
-
-    // vertex normals
-    glVertexAttribPointer(NORMAL_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, normal));
-    glEnableVertexAttribArray(NORMAL_VB);
-
-    // vertex texture coordinates
-    glVertexAttribPointer(TEXTUV_VB, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, texture_uv));
-    glEnableVertexAttribArray(TEXTUV_VB);
-
-    glBindVertexArray(0);
-}
-
-void Mesh::draw(const Shader& shader)
-{
-    for (int k = 0; k < m_shapes.size(); k++) {
-        for (auto i = 0; i < m_shapes[k].textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i);
-
-            glUniform1i(glGetUniformLocation(shader.id(), m_shapes[k].textures[i].name.c_str()), i);
-            glBindTexture(GL_TEXTURE_2D, m_shapes[k].textures[i].id);
-        }
-
-        glBindVertexArray(vertex_array_obj);
-        glDrawElements(GL_TRIANGLES, m_shapes[k].indices_count, GL_UNSIGNED_INT, (void*)(sizeof(int) * m_shapes[k].indices_start));
-        glBindVertexArray(0);
-        glActiveTexture(GL_TEXTURE0);
-    }
-}
-
-void Mesh::cleanup()
-{
-    glDeleteVertexArrays(1, &vertex_array_obj);
-    glDeleteBuffers(1, &vertex_buffer_obj);
-    glDeleteBuffers(1, &element_buffer_obj);
-
-    for (auto s : m_shapes) {
-        for (auto t : s.textures) {
-            glDeleteTextures(1, &t.id);
-        }
-    }
-}
-
-GLuint Mesh::load_texture(const std::string path)
-{
-    GLuint texture_id;
-    int width, height, channels, mode;
-    unsigned char* img_data = stbi_load(path.c_str(), &width, &height, &channels, 0);
-
-    mode = channels == 4 ? GL_RGBA : GL_RGB;
-
-    std::cout << path << channels << mode << std::endl;
-
-    glGenTextures(1, &texture_id);
-
-    if (img_data) {
-        glBindTexture(GL_TEXTURE_2D, texture_id);
-        glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-    else {
-        std::cerr << "Error while loading image\n";
-    }
-
-    stbi_image_free(img_data);
-
-    return texture_id;
 }
 
 bool Mesh::load_obj(const std::string filename, const std::string basedir)
@@ -187,7 +106,7 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
     }
     std::cout << "LOADED OBJ " << filename << std::endl;
 
-    std::unordered_map<Vertex, GLuint> unique_vertices{};
+    std::unordered_map<Vertex, unsigned int> unique_vertices{};
 
     for (const auto& shape : shapes) {
         Shape s;
@@ -214,7 +133,7 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
             };
 
             if (unique_vertices.count(vertex) == 0) {
-                unique_vertices[vertex] = static_cast<GLuint>(m_vertices.size());
+                unique_vertices[vertex] = static_cast<unsigned int>(m_vertices.size());
                 m_vertices.push_back(vertex);
             }
 
@@ -223,12 +142,14 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
 
         s.name = shape.name;
         s.indices_count = static_cast<unsigned int>(m_indices.size()) - s.indices_start;
+        
         // Maybe find a way to reuse texture if already loaded
-        Texture t = { load_texture(basedir + materials[shape.mesh.material_ids[0]].diffuse_texname), "texture_sampler" };
-        s.textures.push_back(t);
+        Texture t(basedir + materials[shape.mesh.material_ids[0]].diffuse_texname);
+        Material m = { "texture_sampler", t };
+        s.materials.push_back(m);
+
         m_shapes.push_back(s);
         std::cout << "CREATED SHAPE " << s.name << std::endl;
-
     }
 
     std::cout << m_vertices.size() << std::endl;

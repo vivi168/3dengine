@@ -6,6 +6,7 @@
 
 #include "Scene.h"
 #include "Camera.h"
+#include "Material.h"
 
 struct TextureCache
 {
@@ -36,8 +37,13 @@ public:
     Renderer();
     void init();
     void render(Scene&, Camera&);
+    void cleanup();
 
 private:
     std::unordered_map<unsigned int, MeshCache> mesh_cache;
     std::unordered_map<unsigned int, TextureCache> texture_cache;
+
+    void cache_mesh(Mesh&);
+    void cache_texture(Texture&);
+    void draw_mesh(Mesh&, Shader&);
 };

@@ -1,6 +1,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "Renderer.h"
 
 const int WINDOW_WIDTH = 1024;
@@ -8,16 +11,28 @@ const int WINDOW_HEIGHT = 768;
 
 void TextureCache::init(Texture& texture)
 {
+    int width, height, channels, mode;
+    unsigned char* img_data = stbi_load(texture.path.c_str(), &width, &height, &channels, 0);
+
+    mode = channels == 4 ? GL_RGBA : GL_RGB;
+
     glGenTextures(1, &id);
 
-    glBindTexture(GL_TEXTURE_2D, id);
-    glTexImage2D(GL_TEXTURE_2D, 0, texture.mode, texture.width, texture.height, 0, texture.mode, GL_UNSIGNED_BYTE, texture.img_data);
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (img_data) {
+        glBindTexture(GL_TEXTURE_2D, id);
+        glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, img_data);
+        glGenerateMipmap(GL_TEXTURE_2D);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else {
+        std::cerr << "Error while loading image\n";
+    }
+
+    stbi_image_free(img_data);
 }
 
 void TextureCache::destroy()
@@ -34,10 +49,10 @@ void MeshCache::init(Mesh& mesh)
     glBindVertexArray(vertex_array_obj);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_obj);
-    //glBufferData(GL_ARRAY_BUFFER, mesh.m_vertices.size() * sizeof(Vertex), &mesh.m_vertices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, mesh.m_vertices.size() * sizeof(Vertex), &mesh.m_vertices[0], GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element_buffer_obj);
-    //glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.size() * sizeof(GLuint), &mesh.m_indices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.m_indices.size() * sizeof(GLuint), &mesh.m_indices[0], GL_STATIC_DRAW);
 
     // vertex position
     glVertexAttribPointer(POSITION_VB, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
@@ -63,9 +78,6 @@ void MeshCache::destroy()
 
 Renderer::Renderer()
 {
-    // when to init MeshCache, TextureCache etc ?
-    // on first render if not exists?
-
 
 }
 
@@ -89,6 +101,67 @@ void Renderer::render(Scene& scene, Camera &camera)
     glm::mat4 pv = projection * view;
 
     for (auto m : scene.models) {
-        m.draw(pv);
+        m.upload_mvp(pv);
+
+        cache_mesh(m.mesh);
+        for (auto shape : m.mesh.m_shapes) {
+            for (auto material : shape.materials)
+                cache_texture(material.texture);
+        }
+        draw_mesh(m.mesh, *m.shader);
+    }
+}
+
+void Renderer::cache_mesh(Mesh& mesh)
+{
+    if (mesh_cache.find(mesh.id) != mesh_cache.end()) {
+        return;
+    }
+
+    MeshCache mc;
+    mc.init(mesh);
+
+    mesh_cache[mesh.id] = mc;
+}
+
+void Renderer::cache_texture(Texture& texture)
+{
+    if (texture_cache.find(texture.id) != texture_cache.end()) {
+        return;
+    }
+
+    TextureCache tc;
+    tc.init(texture);
+
+    texture_cache[texture.id] = tc;
+}
+
+void Renderer::draw_mesh(Mesh& mesh, Shader& shader)
+{
+    glBindVertexArray(mesh_cache[mesh.id].vertex_array_obj);
+
+    for (auto shape : mesh.m_shapes) {
+        for (auto material : shape.materials) {
+            int id = material.texture.id;
+            glActiveTexture(GL_TEXTURE0 + id);
+            glUniform1i(glGetUniformLocation(shader.id(), material.name.c_str()), id);
+            glBindTexture(GL_TEXTURE_2D, texture_cache[id].id);
+        }
+
+        glDrawElements(GL_TRIANGLES, shape.indices_count, GL_UNSIGNED_INT, (void*)(sizeof(int) * shape.indices_start));
+    }
+
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
+}
+
+void Renderer::cleanup()
+{
+    for (auto mc : mesh_cache) {
+        mc.second.destroy();
+    }
+
+    for (auto tc : texture_cache) {
+        tc.second.destroy();
     }
 }

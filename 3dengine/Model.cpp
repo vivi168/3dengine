@@ -20,7 +20,7 @@ Model::Model(Mesh m, Shader* s, glm::vec3 t)
 
 }
 
-void Model::draw(const glm::mat4& pv)
+void Model::upload_mvp(const glm::mat4& pv)
 {
     shader->use();
 
@@ -28,8 +28,6 @@ void Model::draw(const glm::mat4& pv)
 
     GLuint mvp_loc = glGetUniformLocation(shader->id(), "mvp");
     glUniformMatrix4fv(mvp_loc, 1, GL_FALSE, glm::value_ptr(mat));
-
-    mesh.draw(*shader);
 }
 
 void Model::translate(glm::vec3 t)
@@ -49,9 +47,4 @@ glm::mat4 Model::mvp(const glm::mat4& pv)
     model = glm::scale(model, model_scale);
     
     return pv * model;
-}
-
-void Model::cleanup()
-{
-    mesh.cleanup();
 }

@@ -1,14 +1,15 @@
 #pragma once
 
-#include <GL/gl3w.h>
 #include <glm/glm.hpp>
 
 #include <vector>
 #include <string>
 
 #include "Shader.h"
+#include "Material.h"
 
-struct Vertex {
+struct Vertex
+{
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec2 texture_uv;
@@ -18,19 +19,11 @@ struct Vertex {
     }
 };
 
-struct Texture {
-    GLuint id;
-    std::string name;
-
-    int width, height;
-    int channels, mode;
-    unsigned char* img_data;
-};
-
-struct Shape {
-    std::vector<Texture> textures;
+struct Shape
+{
     std::string name;
     unsigned int indices_count, indices_start;
+    std::vector<Material> materials;
 };
 
 class Mesh
@@ -38,28 +31,16 @@ class Mesh
 public:
     const unsigned int id;
 
-    Mesh();
-    Mesh(const std::string, const std::string);
-    Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
-    void draw(const Shader&);
-    void cleanup();
-
-private:
-    static unsigned int next_id;
-
-    GLuint vertex_array_obj, vertex_buffer_obj, element_buffer_obj;
-
-    enum {
-        POSITION_VB,
-        NORMAL_VB,
-        TEXTUV_VB,
-    };
-
     std::vector<Vertex> m_vertices;
     std::vector<GLuint> m_indices;
     std::vector<Shape> m_shapes;
 
-    void init();
-    GLuint load_texture(const std::string);
+    Mesh();
+    Mesh(const std::string, const std::string);
+    Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
+
+private:
+    static unsigned int next_id;
+
     bool load_obj(const std::string, const std::string);
 };

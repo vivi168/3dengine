@@ -1,4 +1,3 @@
-#include <GL/gl3w.h>
 #include <SDL.h>
 
 #include <glm/glm.hpp>
@@ -193,8 +192,8 @@ private:
 
     void gl_cleanup()
     {
-        for (auto m : scene.models)
-            m.cleanup();
+        // TODO don't forget to cleanup renderer mesh & texture cache
+        renderer.cleanup();
         shader.unlink();
         terrain_shader.unlink();
     }
