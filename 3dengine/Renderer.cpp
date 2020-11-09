@@ -83,20 +83,56 @@ Renderer::Renderer()
 
 void Renderer::init()
 {
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
+        std::cerr << "Unable to init SDL\n";
+        exit(EXIT_FAILURE);
+    }
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+
+    create_window("3D Engine", WINDOW_WIDTH, WINDOW_HEIGHT);
+
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    // TODO : add way to add these 3 per model as option?
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-
     glEnable(GL_CULL_FACE);
+}
+
+void Renderer::create_window(const char* title, const int width, const int height)
+{
+    window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+
+    if (window == NULL) {
+        std::cerr << "Error while creating SDL_Window\n";
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
+
+    context = SDL_GL_CreateContext(window);
+
+    if (gl3wInit()) {
+        std::cerr << "failed to init GL3W" << std::endl;
+        SDL_GL_DeleteContext(context);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+        exit(EXIT_FAILURE);
+    }
+
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 }
 
 void Renderer::render(Scene& scene, Camera &camera)
 {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // TODO: add way to set wireframe rendering option per model
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     glm::mat4 view = camera.look_at();
-    // TODO find a nice way to pass window width/height
     glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
     glm::mat4 pv = projection * view;
 
@@ -110,6 +146,8 @@ void Renderer::render(Scene& scene, Camera &camera)
         }
         draw_mesh(m.mesh, *m.shader);
     }
+
+    SDL_GL_SwapWindow(window);
 }
 
 void Renderer::cache_mesh(Mesh& mesh)
@@ -133,6 +171,8 @@ void Renderer::cache_texture(Texture& texture)
     TextureCache tc;
     tc.init(texture);
 
+    // TODO: use texture pathname to cache
+    // So we load texture only once
     texture_cache[texture.id] = tc;
 }
 
@@ -141,10 +181,10 @@ void Renderer::draw_mesh(Mesh& mesh, Shader& shader)
     glBindVertexArray(mesh_cache[mesh.id].vertex_array_obj);
 
     for (auto shape : mesh.m_shapes) {
-        for (auto material : shape.materials) {
-            int id = material.texture.id;
-            glActiveTexture(GL_TEXTURE0 + id);
-            glUniform1i(glGetUniformLocation(shader.id(), material.name.c_str()), id);
+        for (int i = 0; i < shape.materials.size(); i++) {
+            int id = shape.materials[i].texture.id;
+            glActiveTexture(GL_TEXTURE0 + i);
+            glUniform1i(glGetUniformLocation(shader.id(), shape.materials[i].name.c_str()), i);
             glBindTexture(GL_TEXTURE_2D, texture_cache[id].id);
         }
 
@@ -164,4 +204,9 @@ void Renderer::cleanup()
     for (auto tc : texture_cache) {
         tc.second.destroy();
     }
+
+    SDL_GL_DeleteContext(context);
+    SDL_DestroyWindow(window);
+
+    SDL_Quit();
 }

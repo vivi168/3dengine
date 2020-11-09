@@ -1,9 +1,5 @@
 #include <SDL.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include <iostream>
 #include <string>
 #include <vector>
@@ -17,27 +13,17 @@
 #include "Scene.h"
 #include "Renderer.h"
 
-const int WINDOW_WIDTH = 1024;
-const int WINDOW_HEIGHT = 768;
-
 class Demo
 {
 public:
     void run()
     {
-        init();
-        create_window("3D Engine", WINDOW_WIDTH, WINDOW_HEIGHT);
-
         gl_init();
         mainloop();
-
         gl_cleanup();
-        cleanup();
     }
 
 private:
-    SDL_Window* window;
-    SDL_GLContext context;
     Shader shader, terrain_shader;
     Scene scene;
     Camera camera;
@@ -46,42 +32,6 @@ private:
 
     float delta_time;
     bool quit = false;
-
-    void init()
-    {
-        if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-            std::cerr << "Unable to init SDL\n";
-            exit(EXIT_FAILURE);
-        }
-
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    }
-
-    void create_window(const char* title, const int width, const int height)
-    {
-        window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-
-        if (window == NULL) {
-            std::cerr << "Error while creating SDL_Window\n";
-            SDL_Quit();
-            exit(EXIT_FAILURE);
-        }
-
-        context = SDL_GL_CreateContext(window);
-
-        if (gl3wInit()) {
-            std::cerr << "failed to init GL3W" << std::endl;
-            SDL_GL_DeleteContext(context);
-            SDL_DestroyWindow(window);
-            SDL_Quit();
-            exit(EXIT_FAILURE);
-        }
-
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-    }
 
     void mainloop()
     {
@@ -163,8 +113,6 @@ private:
     void render()
     {
         renderer.render(scene, camera);
-
-        SDL_GL_SwapWindow(window);
     }
 
     void gl_init()
@@ -192,18 +140,9 @@ private:
 
     void gl_cleanup()
     {
-        // TODO don't forget to cleanup renderer mesh & texture cache
         renderer.cleanup();
         shader.unlink();
         terrain_shader.unlink();
-    }
-
-    void cleanup()
-    {
-        SDL_GL_DeleteContext(context);
-        SDL_DestroyWindow(window);
-
-        SDL_Quit();
     }
 };
 

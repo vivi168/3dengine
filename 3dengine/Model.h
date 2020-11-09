@@ -8,7 +8,7 @@ class Model
 {
 public:
     Mesh mesh;
-    Shader* shader;
+    Shader* shader; // TODO find way to remove shader from here.
 
     Model(Mesh, Shader*);
     Model(Mesh, Shader*, glm::vec3);

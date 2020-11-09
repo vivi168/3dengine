@@ -7,7 +7,7 @@ class Scene
 {
 public:
     std::vector<Model> models;
-
+    // TODO: add light, LODs
     Scene()
     {
 
@@ -18,5 +18,4 @@ public:
         models.push_back(m);
     }
 private:
-    
 };

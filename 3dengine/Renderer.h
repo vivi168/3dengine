@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/gl3w.h>
+#include <SDL.h>
 #include <string>
 #include <unordered_map>
 
@@ -40,8 +41,13 @@ public:
     void cleanup();
 
 private:
+    SDL_Window* window;
+    SDL_GLContext context;
+
     std::unordered_map<unsigned int, MeshCache> mesh_cache;
     std::unordered_map<unsigned int, TextureCache> texture_cache;
+
+    void create_window(const char*, const int, const int);
 
     void cache_mesh(Mesh&);
     void cache_texture(Texture&);
