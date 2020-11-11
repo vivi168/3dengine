@@ -6,7 +6,6 @@
 #include <string>
 
 #include "Shader.h"
-#include "Material.h"
 
 struct Vertex
 {
@@ -19,11 +18,16 @@ struct Vertex
     }
 };
 
+struct Texture
+{
+    std::string name, path;
+};
+
 struct Shape
 {
     std::string name;
     unsigned int indices_count, indices_start;
-    std::vector<Material> materials;
+    std::vector<Texture> textures;
 };
 
 class Mesh

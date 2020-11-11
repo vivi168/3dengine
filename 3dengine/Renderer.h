@@ -7,7 +7,7 @@
 
 #include "Scene.h"
 #include "Camera.h"
-#include "Material.h"
+#include "Mesh.h"
 
 struct TextureCache
 {
@@ -45,7 +45,7 @@ private:
     SDL_GLContext context;
 
     std::unordered_map<unsigned int, MeshCache> mesh_cache;
-    std::unordered_map<unsigned int, TextureCache> texture_cache;
+    std::unordered_map<std::string, TextureCache> texture_cache;
 
     void create_window(const char*, const int, const int);
 

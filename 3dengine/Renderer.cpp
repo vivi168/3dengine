@@ -141,8 +141,8 @@ void Renderer::render(Scene& scene, Camera &camera)
 
         cache_mesh(m.mesh);
         for (auto shape : m.mesh.m_shapes) {
-            for (auto material : shape.materials)
-                cache_texture(material.texture);
+            for (auto texture : shape.textures)
+                cache_texture(texture);
         }
         draw_mesh(m.mesh, *m.shader);
     }
@@ -164,16 +164,14 @@ void Renderer::cache_mesh(Mesh& mesh)
 
 void Renderer::cache_texture(Texture& texture)
 {
-    if (texture_cache.find(texture.id) != texture_cache.end()) {
+    if (texture_cache.find(texture.path) != texture_cache.end()) {
         return;
     }
 
     TextureCache tc;
     tc.init(texture);
 
-    // TODO: use texture pathname to cache
-    // So we load texture only once
-    texture_cache[texture.id] = tc;
+    texture_cache[texture.path] = tc;
 }
 
 void Renderer::draw_mesh(Mesh& mesh, Shader& shader)
@@ -181,10 +179,10 @@ void Renderer::draw_mesh(Mesh& mesh, Shader& shader)
     glBindVertexArray(mesh_cache[mesh.id].vertex_array_obj);
 
     for (auto shape : mesh.m_shapes) {
-        for (int i = 0; i < shape.materials.size(); i++) {
-            int id = shape.materials[i].texture.id;
+        for (int i = 0; i < shape.textures.size(); i++) {
+            const std::string id = shape.textures[i].path;
             glActiveTexture(GL_TEXTURE0 + i);
-            glUniform1i(glGetUniformLocation(shader.id(), shape.materials[i].name.c_str()), i);
+            glUniform1i(glGetUniformLocation(shader.id(), shape.textures[i].name.c_str()), i);
             glBindTexture(GL_TEXTURE_2D, texture_cache[id].id);
         }
 

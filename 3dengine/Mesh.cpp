@@ -75,9 +75,8 @@ Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<unsigned int> i
     };
 
     for (int i = 0; i < 5; i++) {
-        Texture t(textures[i]);
-        Material m = { uniforms[i], t };
-        shape.materials.push_back(m);
+        Texture t = { uniforms[i], textures[i] };
+        shape.textures.push_back(t);
     }
 
     m_shapes.push_back(shape);
@@ -143,10 +142,11 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
         s.name = shape.name;
         s.indices_count = static_cast<unsigned int>(m_indices.size()) - s.indices_start;
         
-        // Maybe find a way to reuse texture if already loaded
-        Texture t(basedir + materials[shape.mesh.material_ids[0]].diffuse_texname);
-        Material m = { "texture_sampler", t };
-        s.materials.push_back(m);
+        Texture t = {
+            "texture_sampler",
+            basedir + materials[shape.mesh.material_ids[0]].diffuse_texname
+        };
+        s.textures.push_back(t);
 
         m_shapes.push_back(s);
         std::cout << "CREATED SHAPE " << s.name << std::endl;
