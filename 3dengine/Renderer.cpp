@@ -1,4 +1,5 @@
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -136,15 +137,24 @@ void Renderer::render(Scene& scene, Camera &camera)
     glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f, 1000.0f);
     glm::mat4 pv = projection * view;
 
-    for (auto m : scene.models) {
-        m.upload_mvp(pv);
+    for (auto model : scene.models) {
+        Material mat = model.first;
+        Shader shader = shader_for(mat);
 
-        cache_mesh(m.mesh);
-        for (auto shape : m.mesh.m_shapes) {
-            for (auto texture : shape.textures)
-                cache_texture(texture);
+        shader.use();
+
+        for (auto m : model.second) {
+            glm::mat4 mat = m.mvp(pv);
+            GLuint mvp_loc = glGetUniformLocation(shader.id(), "mvp");
+            glUniformMatrix4fv(mvp_loc, 1, GL_FALSE, glm::value_ptr(mat));
+
+            cache_mesh(m.mesh);
+            for (auto shape : m.mesh.m_shapes) {
+                for (auto texture : shape.textures)
+                    cache_texture(texture);
+            }
+            draw_mesh(m.mesh, shader);
         }
-        draw_mesh(m.mesh, *m.shader);
     }
 
     SDL_GL_SwapWindow(window);
@@ -174,16 +184,32 @@ void Renderer::cache_texture(Texture& texture)
     texture_cache[texture.path] = tc;
 }
 
+Shader Renderer::shader_for(Material mat)
+{
+    if (shaders.find(mat) != shaders.end()) {
+        return shaders[mat];
+    }
+
+    if (mat == Material::TERRAIN) {
+        shaders[mat].load("terrain", "shaders/");
+    }
+    else {
+        shaders[mat].load("shader", "shaders/");
+    }
+
+    return shaders[mat];
+}
+
 void Renderer::draw_mesh(Mesh& mesh, Shader& shader)
 {
     glBindVertexArray(mesh_cache[mesh.id].vertex_array_obj);
 
     for (auto shape : mesh.m_shapes) {
         for (int i = 0; i < shape.textures.size(); i++) {
-            const std::string id = shape.textures[i].path;
+            const std::string key = shape.textures[i].path;
             glActiveTexture(GL_TEXTURE0 + i);
             glUniform1i(glGetUniformLocation(shader.id(), shape.textures[i].name.c_str()), i);
-            glBindTexture(GL_TEXTURE_2D, texture_cache[id].id);
+            glBindTexture(GL_TEXTURE_2D, texture_cache[key].id);
         }
 
         glDrawElements(GL_TRIANGLES, shape.indices_count, GL_UNSIGNED_INT, (void*)(sizeof(int) * shape.indices_start));
@@ -201,6 +227,10 @@ void Renderer::cleanup()
 
     for (auto tc : texture_cache) {
         tc.second.destroy();
+    }
+
+    for (auto s : shaders) {
+        s.second.unlink();
     }
 
     SDL_GL_DeleteContext(context);

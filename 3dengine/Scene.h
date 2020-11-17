@@ -1,12 +1,14 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
+
 #include "Model.h"
 
 class Scene
 {
 public:
-    std::vector<Model> models;
+    std::unordered_map<Material, std::vector<Model>> models;
     // TODO: add light, LODs
     Scene()
     {
@@ -15,7 +17,7 @@ public:
 
     void add_model(Model m)
     {
-        models.push_back(m);
+        models[m.material].push_back(m);
     }
 private:
 };

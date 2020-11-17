@@ -141,7 +141,7 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
 
         s.name = shape.name;
         s.indices_count = static_cast<unsigned int>(m_indices.size()) - s.indices_start;
-        
+
         Texture t = {
             "texture_sampler",
             basedir + materials[shape.mesh.material_ids[0]].diffuse_texname

@@ -1,33 +1,25 @@
 #include "Model.h"
+
 #include <GL/gl3w.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
-Model::Model(Mesh m, Shader* s)
+Model::Model(Mesh m, Material mat)
     : mesh(m)
-    , shader(s)
+    , material(mat)
     , model_translate({ 0.0f, 0.0f, 0.0f })
     , model_scale({ 1.0f, 1.0f, 1.0f })
 {
 
 }
 
-Model::Model(Mesh m, Shader* s, glm::vec3 t)
+Model::Model(Mesh m, Material mat, glm::vec3 t)
     : mesh(m)
-    , shader(s)
+    , material(mat)
     , model_translate(t)
     , model_scale({ 1.0f, 1.0f, 1.0f })
 {
 
-}
-
-void Model::upload_mvp(const glm::mat4& pv)
-{
-    shader->use();
-
-    glm::mat4 mat = mvp(pv);
-
-    GLuint mvp_loc = glGetUniformLocation(shader->id(), "mvp");
-    glUniformMatrix4fv(mvp_loc, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
 void Model::translate(glm::vec3 t)

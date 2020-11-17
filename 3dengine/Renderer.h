@@ -5,9 +5,11 @@
 #include <string>
 #include <unordered_map>
 
+#include "Shader.h"
+#include "Mesh.h"
+#include "Model.h"
 #include "Scene.h"
 #include "Camera.h"
-#include "Mesh.h"
 
 struct TextureCache
 {
@@ -46,10 +48,13 @@ private:
 
     std::unordered_map<unsigned int, MeshCache> mesh_cache;
     std::unordered_map<std::string, TextureCache> texture_cache;
+    std::unordered_map<Material, Shader> shaders;
 
     void create_window(const char*, const int, const int);
 
     void cache_mesh(Mesh&);
     void cache_texture(Texture&);
+    Shader shader_for(Material);
+
     void draw_mesh(Mesh&, Shader&);
 };

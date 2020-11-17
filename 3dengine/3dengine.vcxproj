@@ -150,7 +150,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="HeightMap.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Material.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -160,7 +159,6 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="HeightMap.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Material.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Renderer.h" />

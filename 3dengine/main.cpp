@@ -24,7 +24,6 @@ public:
     }
 
 private:
-    Shader shader, terrain_shader;
     Scene scene;
     Camera camera;
     Renderer renderer;
@@ -119,17 +118,14 @@ private:
     {
         renderer.init();
 
-        shader.load("shader", "shaders/");
-        terrain_shader.load("terrain", "shaders/");
-
         Mesh mesh("assets/inn/inn.obj", "assets/inn/");
         Mesh mesh2("assets/human/human.obj", "assets/human/");
         HeightMap map("assets/test.png");
         Mesh mesh3 = map.mesh();
 
-        Model m1(mesh, &shader, { 32.0f, 64.0f, -100.0f });
-        Model m2(mesh2, &shader);
-        Model m3(mesh3, &terrain_shader);
+        Model m1(mesh, Material::BASIC, { 32.0f, 64.0f, -100.0f });
+        Model m2(mesh2, Material::BASIC);
+        Model m3(mesh3, Material::TERRAIN);
 
         m2.translate({ 0.0f, 128.0f / 255.0f * 50.0f, 0.0f });
 
@@ -141,8 +137,6 @@ private:
     void gl_cleanup()
     {
         renderer.cleanup();
-        shader.unlink();
-        terrain_shader.unlink();
     }
 };
 

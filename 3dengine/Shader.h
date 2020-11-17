@@ -40,24 +40,24 @@ public:
         // compile shaders
         const char *vertex_code, *fragment_code;
         unsigned int vertex, fragment;
-        
+
         vertex_code = vertex_content.c_str();
         vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vertex_code, NULL);
         glCompileShader(vertex);
-        check_compile_errors(vertex, "VERTEX");
-        
+        check_compile_errors(vertex, Type::VERTEX);
+
         fragment_code = fragment_content.c_str();
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fragment_code, NULL);
         glCompileShader(fragment);
-        check_compile_errors(fragment, "FRAGMENT");
+        check_compile_errors(fragment, Type::FRAGMENT);
 
         program = glCreateProgram();
         glAttachShader(program, vertex);
         glAttachShader(program, fragment);
         glLinkProgram(program);
-        check_compile_errors(program, "PROGRAM");
+        check_compile_errors(program, Type::PROGRAM);
 
         glDeleteShader(vertex);
         glDeleteShader(fragment);
@@ -79,21 +79,27 @@ public:
     }
 
 private:
+    enum class Type {
+        PROGRAM,
+        VERTEX,
+        FRAGMENT,
+    };
+
     GLuint program = 0;
 
-    void check_compile_errors(unsigned int shader, std::string type)
+    void check_compile_errors(unsigned int shader, Type type)
     {
         int success;
         char info_log[1024];
 
-        if (type == "PROGRAM")
+        if (type == Type::PROGRAM)
             glGetProgramiv(shader, GL_LINK_STATUS, &success);
         else
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
         if (!success) {
             glGetShaderInfoLog(shader, 1024, NULL, info_log);
-            std::cerr << "Error: " << type << std::endl << info_log << std::endl;
+            std::cerr << "Error: " << (int)type << std::endl << info_log << std::endl;
         }
     }
 };
