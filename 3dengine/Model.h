@@ -7,6 +7,8 @@ enum class Material
 {
     BASIC,
     TERRAIN,
+
+    // ensure transparent materials are last
     WATER,
 };
 
@@ -24,5 +26,6 @@ public:
     glm::mat4 mvp(const glm::mat4&);
 
 private:
+    // add properties, like culling face enable, wireframe rendering etc
     glm::vec3 model_translate, model_scale;
 };

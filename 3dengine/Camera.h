@@ -23,8 +23,8 @@ public:
     void process_keyboard(CameraDirection, float);
     void process_mouse(float, float);
     float zoom();
-private:
     glm::vec3 position;
+private:
     glm::vec3 front, up, right;
     glm::vec3 world_up;
 

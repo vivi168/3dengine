@@ -10,9 +10,10 @@
 class Shader
 {
 public:
-    void load(const std::string filename, const std::string basedir)
+    void load(const std::string fn, const std::string basedir)
     {
         // read shaders files
+        filename = fn;
         std::string vertex_content, fragment_content;
         std::ifstream vertex_file, fragment_file;
 
@@ -86,6 +87,7 @@ private:
     };
 
     GLuint program = 0;
+    std::string filename;
 
     void check_compile_errors(unsigned int shader, Type type)
     {
@@ -99,7 +101,7 @@ private:
 
         if (!success) {
             glGetShaderInfoLog(shader, 1024, NULL, info_log);
-            std::cerr << "Error: " << (int)type << std::endl << info_log << std::endl;
+            std::cerr << "Error: " << filename << (int)type << std::endl << info_log << std::endl;
         }
     }
 };

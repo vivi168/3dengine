@@ -26,7 +26,7 @@ struct Texture
 struct Shape
 {
     std::string name;
-    unsigned int indices_count, indices_start;
+    unsigned int indices_start, indices_count;
     std::vector<Texture> textures;
 };
 
@@ -41,7 +41,7 @@ public:
 
     Mesh();
     Mesh(const std::string, const std::string);
-    Mesh(const std::vector<Vertex>, const std::vector<GLuint>);
+    Mesh(const std::vector<Vertex>, const std::vector<GLuint>, const std::vector<Texture>);
 
 private:
     static unsigned int next_id;

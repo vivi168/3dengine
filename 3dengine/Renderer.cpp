@@ -100,6 +100,9 @@ void Renderer::init()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void Renderer::create_window(const char* title, const int width, const int height)
@@ -140,6 +143,11 @@ void Renderer::render(Scene& scene, Camera &camera)
     for (auto model : scene.models) {
         Material mat = model.first;
         Shader shader = shader_for(mat);
+
+        if (mat == Material::WATER)
+            glDisable(GL_CULL_FACE);
+        else
+            glEnable(GL_CULL_FACE);
 
         shader.use();
 
@@ -192,6 +200,9 @@ Shader Renderer::shader_for(Material mat)
 
     if (mat == Material::TERRAIN) {
         shaders[mat].load("terrain", "shaders/");
+    }
+    else if (mat == Material::WATER) {
+        shaders[mat].load("water", "shaders/");
     }
     else {
         shaders[mat].load("shader", "shaders/");

@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-const float YAW = -glm::half_pi<float>();
+const float YAW = glm::half_pi<float>();
 const float PITCH = 0.0f;
 const float SPEED = 50.0f;
 const float SENSITIVITY = 0.002f;

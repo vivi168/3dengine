@@ -36,6 +36,9 @@
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Water.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputManager.h">
@@ -62,6 +65,9 @@
     <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Water.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag">
@@ -74,6 +80,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\terrain.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\water.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\water.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

@@ -33,13 +33,13 @@ void HeightMap::gen_vertices(int width)
         int x, y, z;
         x = (i % width);
         z = (i / width);
-        
+
         y = pixels[i];
 
         vertex.position = {
             x,
-            (float)y / 255.0f * 50.0f,
-            -z
+            (float)(y / 255.0f * 50.0f) - 25.0f,
+            z
         };
 
         // TODO
@@ -50,7 +50,7 @@ void HeightMap::gen_vertices(int width)
         // TODO
         vertex.texture_uv = {
             (float)x / (width - 1),
-            (float)-z / (height - 1)
+            (float)z / (height - 1)
         };
 
         vertices.push_back(vertex);
@@ -58,15 +58,15 @@ void HeightMap::gen_vertices(int width)
         // tweak the indices order for face culling
         if (x < width - 1) {
             if (z > 0) {
+                indices.push_back(i);
+                indices.push_back(i + 1);
                 indices.push_back(i + 1 - width);
-                indices.push_back(i + 1);
-                indices.push_back(i);
             }
-            
+
             if (z < height - 1) {
-                indices.push_back(i);
-                indices.push_back(i + 1);
                 indices.push_back(i + width);
+                indices.push_back(i + 1);
+                indices.push_back(i);
             }
         }
     }
@@ -77,6 +77,13 @@ void HeightMap::gen_vertices(int width)
 
 Mesh HeightMap::mesh()
 {
-    // TODO specify texture(s) path here ?
-    return Mesh(vertices, indices);
+    std::vector<Texture> textures = {
+        { "blendmap", "assets/blendmap.png" },
+        { "base_texture", "assets/grass.png" },
+        { "r_texture", "assets/paved.png" },
+        { "g_texture", "assets/mud.png" },
+        { "b_texture", "assets/grassFlowers.png" },
+    };
+
+    return Mesh(vertices, indices, textures);
 }

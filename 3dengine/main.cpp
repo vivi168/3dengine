@@ -10,6 +10,7 @@
 #include "Model.h"
 #include "Camera.h"
 #include "HeightMap.h"
+#include "Water.h"
 #include "Scene.h"
 #include "Renderer.h"
 
@@ -53,6 +54,8 @@ private:
             poll_events();
 
             process_input();
+
+            // printf("%f %f %f\n", camera.position.x, camera.position.y, camera.position.z);
 
             render();
 
@@ -120,18 +123,26 @@ private:
 
         Mesh mesh("assets/inn/inn.obj", "assets/inn/");
         Mesh mesh2("assets/human/human.obj", "assets/human/");
-        HeightMap map("assets/test.png");
+        HeightMap map("assets/map.png");
         Mesh mesh3 = map.mesh();
 
-        Model m1(mesh, Material::BASIC, { 32.0f, 64.0f, -100.0f });
+        Mesh tree("assets/trees/elwynntreecanopy01.obj", "assets/trees/");
+
+        Mesh water_pond = water_quad(256, 256);
+
+        Model m1(mesh, Material::BASIC, { 50.0f, 0.5f, 220.0f });
         Model m2(mesh2, Material::BASIC);
         Model m3(mesh3, Material::TERRAIN);
+        Model m4(water_pond, Material::WATER);
+        Model tree_m(tree, Material::BASIC, { 145.0f, 10.0f, 128.0f });
 
-        m2.translate({ 0.0f, 128.0f / 255.0f * 50.0f, 0.0f });
+        m2.translate({ 10.0f, 0.0f, 10.0f });
 
         scene.add_model(m1);
         scene.add_model(m2);
         scene.add_model(m3);
+        scene.add_model(tree_m);
+        scene.add_model(m4);
     }
 
     void gl_cleanup()

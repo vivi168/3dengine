@@ -1,14 +1,17 @@
 #pragma once
 
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 #include "Model.h"
 
 class Scene
 {
 public:
-    std::unordered_map<Material, std::vector<Model>> models;
+    // TODO maybe discard model class, and add models information to a scene node.
+    // scene nodes contains a mesh ?
+    // delete model, rename mesh -> model, rename shape -> mesh ?
+    std::map<Material, std::vector<Model>> models;
     // TODO: add light, LODs
     Scene()
     {

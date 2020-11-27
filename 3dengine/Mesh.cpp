@@ -45,41 +45,16 @@ Mesh::Mesh(const std::string filename, const std::string basedir)
          return;
 }
 
-Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<unsigned int> indices)
+Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<unsigned int> indices, const std::vector<Texture> textures)
     : id(next_id++)
     , m_vertices(vertices)
     , m_indices(indices)
 {
-    // TODO called from height map
-
-    Shape shape;
-
-    shape.name = "terrain";
-    shape.indices_start = 0;
-    shape.indices_count = static_cast<unsigned int>(m_indices.size());
-
-    std::vector<std::string> textures = {
-        "assets/blendmap.png",
-        "assets/grass.png",
-        "assets/paved.png",
-        "assets/mud.png",
-        "assets/grassFlowers.png"
-    };
-
-    std::vector<std::string> uniforms = {
-        "blendmap",
-        "base_texture",
-        "r_texture",
-        "g_texture",
-        "b_texture"
-    };
-
-    for (int i = 0; i < 5; i++) {
-        Texture t = { uniforms[i], textures[i] };
-        shape.textures.push_back(t);
-    }
-
-    m_shapes.push_back(shape);
+    m_shapes.push_back({
+        "issou",
+        0, static_cast<unsigned int>(m_indices.size()),
+        textures
+    });
 }
 
 bool Mesh::load_obj(const std::string filename, const std::string basedir)
