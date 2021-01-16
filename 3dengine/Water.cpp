@@ -1,10 +1,14 @@
 #include "Water.h"
 
-Mesh water_quad(int width, int height)
+Water::Water(int w, int h)
+    : width(w)
+    , height(h)
 {
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
+    gen_vertices();
+}
 
+void Water::gen_vertices()
+{
     for (int i = 0; i < (width * height); i++) {
         Vertex vertex;
 
@@ -23,7 +27,6 @@ Mesh water_quad(int width, int height)
             0, 0 ,0
         };
 
-        // TODO
         vertex.texture_uv = {
             (float)x / (width - 1),
             (float)z / (height - 1)
@@ -46,6 +49,13 @@ Mesh water_quad(int width, int height)
             }
         }
     }
+}
 
-    return Mesh(vertices, indices, std::vector<Texture>());
+Mesh Water::mesh()
+{
+    std::vector<Texture> textures {
+        { "texture_sampler", "assets/Water_002_DISP.png" }
+    };
+
+    return Mesh(vertices, indices, textures);
 }

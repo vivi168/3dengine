@@ -9,10 +9,11 @@ class HeightMap
 {
 public:
     HeightMap(const std::string);
-    void gen_vertices(int);
     Mesh mesh();
 
 private:
+    void gen_vertices(int);
+
     std::vector<unsigned int> pixels;
     int min, max;
     std::vector<Vertex> vertices;

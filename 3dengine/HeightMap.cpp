@@ -47,7 +47,6 @@ void HeightMap::gen_vertices(int width)
             0, 0 ,0
         };
 
-        // TODO
         vertex.texture_uv = {
             (float)x / (width - 1),
             (float)z / (height - 1)
@@ -77,7 +76,7 @@ void HeightMap::gen_vertices(int width)
 
 Mesh HeightMap::mesh()
 {
-    std::vector<Texture> textures = {
+    std::vector<Texture> textures {
         { "blendmap", "assets/blendmap.png" },
         { "base_texture", "assets/grass.png" },
         { "r_texture", "assets/paved.png" },

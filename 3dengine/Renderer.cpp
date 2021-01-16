@@ -30,7 +30,7 @@ void TextureCache::init(Texture& texture)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     else {
-        std::cerr << "Error while loading image\n";
+        std::cerr << "Error while loading image " << texture.path << '\n';
     }
 
     stbi_image_free(img_data);
@@ -216,6 +216,10 @@ void Renderer::draw_mesh(Mesh& mesh, Shader& shader)
     glBindVertexArray(mesh_cache[mesh.id].vertex_array_obj);
 
     for (auto shape : mesh.m_shapes) {
+        // pass delta time uniform here
+        
+        // glUniform1f(glGetUniformLocation(shader.id(), "delta"), 0.0f);
+
         for (int i = 0; i < shape.textures.size(); i++) {
             const std::string key = shape.textures[i].path;
             glActiveTexture(GL_TEXTURE0 + i);

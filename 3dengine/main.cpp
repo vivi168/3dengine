@@ -128,12 +128,13 @@ private:
 
         Mesh tree("assets/trees/elwynntreecanopy01.obj", "assets/trees/");
 
-        Mesh water_pond = water_quad(256, 256);
+        Water water_pond(256, 256);
+        Mesh water_mesh = water_pond.mesh();
 
         Model m1(mesh, Material::BASIC, { 50.0f, 0.5f, 220.0f });
         Model m2(mesh2, Material::BASIC);
         Model m3(mesh3, Material::TERRAIN);
-        Model m4(water_pond, Material::WATER);
+        Model m4(water_mesh, Material::WATER);
         Model tree_m(tree, Material::BASIC, { 145.0f, 10.0f, 128.0f });
 
         m2.translate({ 10.0f, 0.0f, 10.0f });
