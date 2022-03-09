@@ -23,6 +23,8 @@ HeightMap::HeightMap(const std::string filepath)
     gen_vertices(width);
 }
 
+// TODO create a "Plane class" which enable generating a plane
+// use it for water and base terrain mesh
 void HeightMap::gen_vertices(int width)
 {
     std::cout << "Generate mesh " << width << std::endl;

@@ -10,6 +10,8 @@
 const int WINDOW_WIDTH = 1024;
 const int WINDOW_HEIGHT = 768;
 
+
+// texture directly in mesh object
 void TextureCache::init(Texture& texture)
 {
     int width, height, channels, mode;
@@ -140,10 +142,12 @@ void Renderer::render(Scene& scene, Camera &camera)
     glm::mat4 projection = glm::perspective(camera.zoom(), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 1.0f, 1000.0f);
     glm::mat4 pv = projection * view;
 
+    // todo sort model by material to reduce shader use.
     for (auto model : scene.models) {
         Material mat = model.first;
         Shader shader = shader_for(mat);
 
+        // TODO find better way ?
         if (mat == Material::WATER)
             glDisable(GL_CULL_FACE);
         else
@@ -192,6 +196,7 @@ void Renderer::cache_texture(Texture& texture)
     texture_cache[texture.path] = tc;
 }
 
+// have an array/map instead of this function
 Shader Renderer::shader_for(Material mat)
 {
     if (shaders.find(mat) != shaders.end()) {

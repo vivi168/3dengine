@@ -18,9 +18,16 @@ struct Vertex
     }
 };
 
+struct Image
+{
+    unsigned char *data;
+};
+
 struct Texture
 {
     std::string name, path;
+
+    unsigned int image_index;
 };
 
 struct Shape
@@ -28,6 +35,8 @@ struct Shape
     std::string name;
     unsigned int indices_start, indices_count;
     std::vector<Texture> textures;
+
+    unsigned int texture_index;
 };
 
 class Mesh
@@ -39,7 +48,11 @@ public:
     std::vector<GLuint> m_indices;
     std::vector<Shape> m_shapes;
 
+    std::vector<Texture> m_textures;
+    std::vector<Image> m_images;
+
     Mesh();
+    Mesh(const std::string);
     Mesh(const std::string, const std::string);
     Mesh(const std::vector<Vertex>, const std::vector<GLuint>, const std::vector<Texture>);
 
@@ -47,4 +60,5 @@ private:
     static unsigned int next_id;
 
     bool load_obj(const std::string, const std::string);
+    bool load_glb(const std::string);
 };

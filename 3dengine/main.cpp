@@ -122,7 +122,9 @@ private:
         renderer.init();
 
         Mesh mesh("assets/inn/inn.obj", "assets/inn/");
-        Mesh mesh2("assets/human/human.obj", "assets/human/");
+        //Mesh mesh("assets/house_test/house.obj", "assets/house_test/");
+        //Mesh mesh2("assets/human/human.obj", "assets/human/");
+        Mesh mesh2("assets/cube.obj", "assets/");
         HeightMap map("assets/map.png");
         Mesh mesh3 = map.mesh();
 
@@ -130,6 +132,8 @@ private:
 
         Water water_pond(256, 256);
         Mesh water_mesh = water_pond.mesh();
+
+        Mesh gltf_mesh("assets/untitled.glb");
 
         Model m1(mesh, Material::BASIC, { 50.0f, 0.5f, 220.0f });
         Model m2(mesh2, Material::BASIC);

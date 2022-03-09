@@ -54,7 +54,10 @@ void Water::gen_vertices()
 Mesh Water::mesh()
 {
     std::vector<Texture> textures {
-        { "texture_sampler", "assets/Water_002_DISP.png" }
+        {
+            "texture_sampler",
+            "assets/Water_002_DISP.png"
+        }
     };
 
     return Mesh(vertices, indices, textures);

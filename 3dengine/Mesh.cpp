@@ -1,5 +1,9 @@
 #include "Mesh.h"
 
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+#define TINYGLTF_IMPLEMENTATION
+#include <tiny_gltf.h>
+
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
@@ -36,6 +40,13 @@ Mesh::Mesh()
     : id(next_id++)
 { }
 
+Mesh::Mesh(const std::string filename)
+    : id(next_id++)
+{
+    bool loaded = load_glb(filename);
+
+}
+
 Mesh::Mesh(const std::string filename, const std::string basedir)
     : id(next_id++)
 {
@@ -57,6 +68,7 @@ Mesh::Mesh(const std::vector<Vertex> vertices, const std::vector<unsigned int> i
     });
 }
 
+// TODO replace with glTF ?
 bool Mesh::load_obj(const std::string filename, const std::string basedir)
 {
     tinyobj::attrib_t attrib;
@@ -129,6 +141,71 @@ bool Mesh::load_obj(const std::string filename, const std::string basedir)
 
     std::cout << m_vertices.size() << std::endl;
     std::cout << m_indices.size() << std::endl;
+
+    return true;
+}
+
+bool Mesh::load_glb(const std::string filename)
+{
+    std::string err;
+    std::string warn;
+    tinygltf::Model model;
+    tinygltf::TinyGLTF loader;
+
+    bool ret = loader.LoadBinaryFromFile(&model, &err, &warn, filename);
+
+    if (!warn.empty()) {
+        std::cerr << "Warn: " << warn << "\n";
+    }
+
+    if (!err.empty()) {
+        std::cerr << "Warn: " << err << "\n";
+    }
+
+    if (!ret) {
+        std::cerr << "Failed to parse glTF\n";
+        return false;
+    }
+
+    std::cout << "LOADED GLB " << filename << std::endl;
+
+    // here
+    // positions, normal, texture_uv
+
+    const tinygltf::Scene& scene = model.scenes[model.defaultScene];
+
+    std::cout << scene.nodes.size() << "\n";
+
+    for (auto node_idx : scene.nodes) {
+        auto mesh_idx = model.nodes[node_idx].mesh;
+
+        if (mesh_idx < 0) continue;
+
+        /*
+        
+        for each mesh
+
+	        for each mesh.primitives
+
+		        px = primitive.attributes[POSITION]   -> accessors[px]
+		        nx = primitive.attributes[NORMAL]     -> accessors[nx]
+		        tx = primitive.attributes[TEXCOORD_0] -> accessors[tx]
+
+		        ix = primitive.indices -> accessors[ix]
+
+
+		        ---
+
+                buf_view = bufferViews[accessor[i].bufferView]
+                buf_idx = buf_view.buffer
+
+                start = accessor[i].byteOffset + buf_view.byteOffset
+                   
+                data = buffer.data[start..start + buf_vew.byteLength] 
+        
+        */
+
+    }
 
     return true;
 }
