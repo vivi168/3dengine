@@ -342,3 +342,5 @@ healthchecksdb
 # Project specifics
 
 assets/
+!assets/.keep
+SDL2.dll
