@@ -1,7 +1,11 @@
 #pragma once
 
 #include <GL/gl3w.h>
+#ifdef _WIN32
 #include <SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 #include <string>
 #include <unordered_map>
 

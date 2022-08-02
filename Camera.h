@@ -24,11 +24,15 @@ public:
     void process_mouse(float, float);
     float zoom();
     glm::vec3 position;
+    float yaw, pitch;
+
+
+    void set_pitch(float);
+    void set_yaw(float);
 private:
     glm::vec3 front, up, right;
     glm::vec3 world_up;
 
-    float yaw, pitch;
     float speed, sensitivity, m_zoom;
     bool m_constrain_pitch;
 

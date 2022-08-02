@@ -1,4 +1,8 @@
+#ifdef _WIN32
 #include <SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 
 #include <iostream>
 #include <string>
@@ -42,6 +46,10 @@ private:
         const Uint32 FPS = 144;
         const Uint32 ticks_per_frame = 1000 / FPS;
         Uint32 frame_start, frame_time;
+
+
+        camera.position = glm::vec3(50, 50, -75);
+        camera.set_pitch(-0.25);
 
         while (!quit) {
             tp2 = std::chrono::system_clock::now();

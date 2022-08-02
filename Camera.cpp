@@ -10,9 +10,9 @@ const float ZOOM = glm::quarter_pi<float>();
 
 Camera::Camera()
     : position({ 0.0f, 0.0f, 3.0f })
-    , world_up({ 0.0f, 1.0f, 0.0f })
     , yaw(YAW)
     , pitch(PITCH)
+    , world_up({ 0.0f, 1.0f, 0.0f })
     , speed(SPEED)
     , sensitivity(SENSITIVITY)
     , m_zoom(ZOOM)
@@ -100,4 +100,17 @@ void Camera::constrain_pitch()
 float Camera::zoom()
 {
     return m_zoom;
+}
+
+void Camera::set_pitch(float p)
+{
+    pitch = p;
+    constrain_pitch();
+    update();
+}
+
+void Camera::set_yaw(float y)
+{
+    yaw = y;
+    update();
 }

@@ -344,3 +344,9 @@ healthchecksdb
 assets/*
 !assets/.keep
 SDL2.dll
+vendor/SDL2/*
+!vendor/SDL2/.keep
+vendor/glm/*
+!vendor/glm/.keep
+build/*
+build/.keep
